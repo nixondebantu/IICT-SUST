@@ -1,10 +1,18 @@
+import cors from "cors";
 import express, { Request, Response } from "express";
-import { config } from "./config";
+import config from "./config";
+import authRoute from "./routes/auth.route";
+
 const app = express();
 
+app.use(cors());
+app.use(express.json());
+
 app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Welcome to the express server of IICT, SUST." });
+  res.status(200).json({ message: "IICT server is running properly." });
 });
+
+app.use("/auth", authRoute);
 
 const PORT = config.server.port || 5000;
 
