@@ -1,0 +1,44 @@
+{
+  "name": "iict-sust-express-server",
+  "version": "1.0.0",
+  "description": "The backend server for IICT, SUST official website. It is build using express js in typescript.",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx tsc && node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "db-push": "npx drizzle-kit push --config=src/drizzle.config.ts",
+    "db-generate": "npx drizzle-kit generate --config=src/drizzle.config.ts",
+    "db-migrate": "npx drizzle-kit migrate --config=src/drizzle.config.ts",
+    "db-studio": "npx drizzle-kit studio --config=src/drizzle.config.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nixondebantu/IICT-SUST.git"
+  },
+  "keywords": [
+    "ExpressJS",
+    "Typescript"
+  ],
+  "author": "Prosfut (SWE-20)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nixondebantu/IICT-SUST/issues"
+  },
+  "homepage": "https://github.com/nixondebantu/IICT-SUST#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.1",
+    "express": "^4.21.2",
+    "pg": "^8.14.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.10",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.5",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
