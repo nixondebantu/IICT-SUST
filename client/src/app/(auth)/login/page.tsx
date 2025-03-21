@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -8,22 +9,34 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import useAuthAction from "@/hooks/useAuthAction.hook";
 import { LoginReq } from "@/lib/dtos/auth.dto";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { loginValidator } from "@/lib/validators/auth.validator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import JWTService from "@/lib/services/cookies.service";
+import { loginValidator } from "@/lib/validators/auth.validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Login = () => {
-  const form = useForm<LoginReq>({ resolver: zodResolver(loginValidator) });
+  const form = useForm<LoginReq>({
+    resolver: zodResolver(loginValidator),
+    defaultValues: {
+      email: "",
+      password: "",
+      remember: false,
+    },
+  });
   const navigate = useNavigate();
+  const { loginMutation } = useAuthAction();
 
   const onSubmit = async (data: LoginReq) => {
-    console.log(data);
+    loginMutation.mutate(data, {
+      onSuccess: () => {
+        navigate("/dashboard");
+      },
+    });
   };
 
   useEffect(() => {
@@ -33,6 +46,8 @@ const Login = () => {
       toast.info("You are already logged in.");
     }
   }, []);
+
+  console.log(form.formState.errors);
 
   return (
     <div className="h-screen flex items-center justify-center">
@@ -105,19 +120,25 @@ const Login = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="mt-4 w-full">
-                Continue with Email
+              <Button
+                type="submit"
+                className="mt-4 w-full"
+                disabled={loginMutation.isPending}
+              >
+                {loginMutation.isPending
+                  ? "Logging in..."
+                  : "Continue with Email"}
               </Button>
             </form>
           </Form>
 
           <div className="mt-5 space-y-5">
-            <a
-              href="/reset-password"
+            <Link
+              to="/reset-password"
               className="text-sm block underline text-muted-foreground text-center"
             >
               Forgot your password?
-            </a>
+            </Link>
           </div>
         </div>
         <div

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 function ResetPass() {
@@ -11,9 +12,9 @@ function ResetPass() {
       <Button onClick={onClick}>Reset Password</Button>
       <p>
         Remember your password?{" "}
-        <a href="/login" className="underline">
+        <Link to="/login" className="underline">
           Log in
-        </a>
+        </Link>
       </p>
     </div>
   );

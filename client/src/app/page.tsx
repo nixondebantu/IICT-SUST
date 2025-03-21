@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 function App() {
   return (
     <div className="flex flex-col items-center justify-center min-h-svh">
-      <a href="/login">
+      <Link to="/login">
         <Button>Login</Button>
-      </a>
+      </Link>
     </div>
   );
 }
