@@ -1,6 +1,6 @@
 import { integer, pgTable, primaryKey } from "drizzle-orm/pg-core";
-import { permissions } from "./permissions.schema";
-import { roles } from "./roles.schema";
+import { roles } from "./roles.schema.js";
+import { permissions } from "./permissions.schema.js";
 
 export const rolePermissions = pgTable(
   "role_permissions",

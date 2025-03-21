@@ -1,15 +1,15 @@
 {
   "name": "iict-sust-express-server",
   "version": "1.0.0",
-  "description": "The backend server for IICT, SUST official website. It is build using express js in typescript.",
+  "description": "The backend server for IICT, SUST official website. It is build using express js.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "npx tsc && node dist/index.js",
-    "dev": "nodemon src/index.ts",
-    "db-push": "npx drizzle-kit push --config=src/drizzle.config.ts",
-    "db-generate": "npx drizzle-kit generate --config=src/drizzle.config.ts",
-    "db-migrate": "npx drizzle-kit migrate --config=src/drizzle.config.ts",
-    "db-studio": "npx drizzle-kit studio --config=src/drizzle.config.ts"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "db-generate": "npx drizzle-kit generate --config=drizzle.config.js",
+    "db-migrate": "npx drizzle-kit migrate --config=drizzle.config.js",
+    "db-studio": "npx drizzle-kit studio --config=drizzle.config.js"
   },
   "repository": {
     "type": "git",
@@ -17,9 +17,10 @@
   },
   "keywords": [
     "ExpressJS",
-    "Typescript"
+    "Dirzzle",
+    "PostgreSQL"
   ],
-  "author": "Prosfut (SWE-20)",
+  "author": "Proshfut (SWE-20)",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/nixondebantu/IICT-SUST/issues"
@@ -33,24 +34,13 @@
     "express": "^4.21.2",
     "iict-sust-express-server": "file:",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1",
+    "multer": "^1.4.5-lts.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^6.10.0",
     "pg": "^8.14.1"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^5.0.0",
-    "@types/jsonwebtoken": "^9.0.9",
-    "@types/multer": "^1.4.12",
-    "@types/node": "^22.13.10",
-    "@types/nodemailer": "^6.4.17",
-    "@types/pg": "^8.11.11",
     "drizzle-kit": "^0.30.5",
-    "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "nodemon": "^3.1.9"
   }
 }
