@@ -67,4 +67,47 @@ const deleteCarousel = async (req, res) => {
      }
 }
 
-export { createCarousel, deleteCarousel, getCarousels };
+const updateCarousel = async (req, res) => {
+  const { id } = req.params;
+  const { title, description } = req.body;
+
+  try {
+    // Find the existing carousel
+    const existingCarousel = await db.select().from(carousels).where(eq(carousels.id, parseInt(id, 10))).limit(1);
+    
+    if (existingCarousel.length === 0) {
+      return res.status(404).json({ message: "Carousel not found." });
+    }
+
+    // Prepare the data to update
+    const updatedData = {};
+    if (title) updatedData.title = title;
+    if (description) updatedData.description = description;
+
+    let coverImageUrl = existingCarousel[0].image_url;
+
+    if (req.file) {
+      // If there's a new image, upload and delete the old one from Cloudinary
+      const publicId = coverImageUrl.split('/').pop().split('.')[0]; // Extract the public ID
+      await cloudinary.uploader.destroy(publicId);  // Remove old image from Cloudinary
+
+      coverImageUrl = req.file.path;  // Get the new image URL
+    }
+
+    updatedData.image_url = coverImageUrl;
+
+    // Update the carousel in the database
+    const updatedCarousel = await db
+      .update(carousels)
+      .set(updatedData)
+      .where(eq(carousels.id, parseInt(id, 10)))
+      .returning();
+
+    res.status(200).json({ message: "Carousel updated successfully", carousel: updatedCarousel[0] });
+  } catch (error) {
+    console.error("Update carousel error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+export { createCarousel, deleteCarousel, getCarousels, updateCarousel };
