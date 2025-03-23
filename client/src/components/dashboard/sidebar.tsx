@@ -1,4 +1,9 @@
-import { Award, GalleryThumbnails, Home, NotebookPen } from "lucide-react";
+import {
+  Award,
+  GalleryThumbnails,
+  LayoutDashboard,
+  NotebookPen,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import SidebarButton from "./SidebarButton";
 
@@ -10,7 +15,7 @@ export default function Sidebar({ className }: SidebarProps) {
   const location = useLocation();
   const pathname = location.pathname;
   const links = [
-    { label: "Home", href: "/dashboard", Icon: Home },
+    { label: "Dashboard", href: "/dashboard", Icon: LayoutDashboard },
     { label: "Carousel", href: "/dashboard/carousel", Icon: GalleryThumbnails },
     { label: "Achievement", href: "/dashboard/achievement", Icon: Award },
     { label: "Blog", href: "/dashboard/blog", Icon: NotebookPen },

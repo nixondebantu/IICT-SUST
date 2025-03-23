@@ -21,7 +21,7 @@ const config = {
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
     imageUploadPreset: process.env.CLOUDINARY_IMAGE_UPLOAD_PRESET,
-    assetUploadPreset: process.env.CLOUDINARY_IMAGE_UPLOAD_PRESET,
+    assetUploadPreset: process.env.CLOUDINARY_ASSETS_UPLOAD_PRESET,
   },
 };
 

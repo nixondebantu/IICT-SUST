@@ -1,7 +1,7 @@
+import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import config from "../config/index.js";
-import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
   cloud_name: config.cloudinary.cloudName,
@@ -26,4 +26,5 @@ const assetStorage = new CloudinaryStorage({
 const imageUpload = multer({ storage: imageStorage });
 const assetUpload = multer({ storage: assetStorage });
 
-exports = { imageUpload, assetUpload, cloudinary };
+export { assetUpload, cloudinary, imageUpload };
+
