@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-function Carousel() {
+function News() {
   return (
     <div className="flex flex-col max-w-7xl p-6">
       <Breadcrumb className="mb-4">
@@ -19,14 +19,14 @@ function Carousel() {
           <BreadcrumbSeparator>/</BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>
-              <Badge className="shadow-none rounded-full">Carousel</Badge>
+              <Badge className="shadow-none rounded-full">News</Badge>
             </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1>Carousels</h1>
+      <h1>News</h1>
     </div>
   );
 }
 
-export default Carousel;
+export default News;

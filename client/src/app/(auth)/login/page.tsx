@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import useAuthAction from "@/hooks/useAuthAction.hook";
+import { useAuth } from "@/lib/context/AuthContext";
 import { LoginReq } from "@/lib/dtos/auth.dto";
-import JWTService from "@/lib/services/cookies.service";
 import { loginValidator } from "@/lib/validators/auth.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
@@ -20,6 +20,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const Login = () => {
+  const { setIsLoggedIn, isLoggedIn } = useAuth();
   const form = useForm<LoginReq>({
     resolver: zodResolver(loginValidator),
     defaultValues: {
@@ -34,14 +35,14 @@ const Login = () => {
   const onSubmit = async (data: LoginReq) => {
     loginMutation.mutate(data, {
       onSuccess: () => {
+        setIsLoggedIn(true);
         navigate("/dashboard");
       },
     });
   };
 
   useEffect(() => {
-    const tokenAvailable = JWTService.getJWT();
-    if (tokenAvailable) {
+    if (isLoggedIn) {
       navigate("/dashboard");
       toast.info("You are already logged in.");
     }

@@ -1,43 +1,55 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import Login from "./app/(auth)/login/page";
 import ResetPass from "./app/(auth)/reset-password/page";
+import Blog from "./app/(protected)/dashboard/blog/page";
 import Carousel from "./app/(protected)/dashboard/carousel/page";
-import DashboardLayout from "./app/(protected)/dashboard/layout";
+import News from "./app/(protected)/dashboard/news/page";
 import Dashboard from "./app/(protected)/dashboard/page";
 import NotFound from "./app/not-found";
 import Home from "./app/page";
+import Navbar from "./components/layout/navbar";
+import ProtectedLayout from "./components/layout/ProtectedLayout";
+import { AuthProvider } from "./lib/context/AuthContext";
+
+const RootLayout = () => {
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
+};
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <RootLayout />,
     errorElement: <NotFound />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/reset-password",
-    element: <ResetPass />,
-  },
-  {
-    path: "/dashboard",
-    element: <DashboardLayout />,
     children: [
+      { path: "", element: <Home /> },
+      { path: "login", element: <Login /> },
+      { path: "reset-password", element: <ResetPass /> },
+
       {
-        index: true,
-        element: <Dashboard />,
-      },
-      {
-        path: "carousel",
-        element: <Carousel />,
+        path: "dashboard",
+        element: <ProtectedLayout />,
+        children: [
+          { path: "", element: <Dashboard /> },
+          { path: "carousel", element: <Carousel /> },
+          { path: "news", element: <News /> },
+          { path: "blog", element: <Blog /> },
+        ],
       },
     ],
   },
 ]);
+
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;
