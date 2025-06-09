@@ -11,6 +11,7 @@ import Navbar from "./components/layout/navbar";
 import ProtectedLayout from "./components/layout/ProtectedLayout";
 import { AuthProvider } from "./lib/context/AuthContext";
 import Footer from "./components/layout/footer";
+import AboutPage from "./app/about/page";
 
 const RootLayout = () => {
   return (
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
     errorElement: <NotFound />,
     children: [
       { path: "", element: <Home /> },
+      { path: "about", element: <AboutPage /> },
       { path: "login", element: <Login /> },
       { path: "reset-password", element: <ResetPass /> },
 
