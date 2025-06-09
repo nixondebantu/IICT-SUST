@@ -10,12 +10,14 @@ import Home from "./app/page";
 import Navbar from "./components/layout/navbar";
 import ProtectedLayout from "./components/layout/ProtectedLayout";
 import { AuthProvider } from "./lib/context/AuthContext";
+import Footer from "./components/layout/footer";
 
 const RootLayout = () => {
   return (
     <>
       <Navbar />
       <Outlet />
+      <Footer />
     </>
   );
 };

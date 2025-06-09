@@ -54,14 +54,14 @@ const Login = () => {
     <div className="h-screen flex items-center justify-center">
       <div className="w-full h-full grid lg:grid-cols-2">
         <div className="max-w-xs m-auto w-full flex flex-col items-center">
-          <img className="h-24 w-24" src="./favicon.svg" />
+          <img className="h-24 w-24" src="./favicon.svg" alt="IICT Logo" />{" "}
+          {/* Added alt attribute for accessibility */}
           <p className="mt-4 text-xl font-bold tracking-tight text-center">
             Log in to IICT, SUST
           </p>
-
           <Form {...form}>
             <form
-              className="w-full space-y-4"
+              className="w-full space-y-4" // space-y-4 applies to elements directly inside the form
               onSubmit={form.handleSubmit(onSubmit)}
             >
               <FormField
@@ -108,8 +108,8 @@ const Login = () => {
                     <div className="flex gap-2">
                       <Checkbox
                         id="remember"
-                        checked={field.value} // Use `checked` instead of `value`
-                        onCheckedChange={field.onChange} // Ensure correct event handling
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
                       />
                       <label
                         htmlFor="remember"
@@ -123,7 +123,7 @@ const Login = () => {
               />
               <Button
                 type="submit"
-                className="mt-4 w-full"
+                className="w-full"
                 disabled={loginMutation.isPending}
               >
                 {loginMutation.isPending
@@ -132,8 +132,18 @@ const Login = () => {
               </Button>
             </form>
           </Form>
-
-          <div className="mt-5 space-y-5">
+          {/* New Button and existing link are now grouped in a div with vertical spacing */}
+          <div className="mt-2 space-y-3 w-full">
+            {" "}
+            {/* Adjusted space-y to 3 for slightly tighter grouping, or keep 5 */}
+            <Button
+              type="button" // Important: ensures it doesn't submit the form
+              className="w-full"
+              variant="outline" // Use outline for a secondary button style
+              onClick={() => navigate("/")} // Navigate to homepage
+            >
+              Go to Homepage
+            </Button>
             <Link
               to="/reset-password"
               className="text-sm block underline text-muted-foreground text-center"
