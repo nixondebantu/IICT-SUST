@@ -2,7 +2,7 @@ export default function AboutHero() {
   return (
     <section
       id="about-hero"
-      className="bg-gradient-to-r from-footer-bg to-footer-bg/90 text-white h-[400px] flex items-center"
+      className="bg-gradient-to-r from-gray-900 to-gray-800 text-white h-[400px] flex items-center"
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-3xl">

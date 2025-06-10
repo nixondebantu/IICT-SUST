@@ -12,6 +12,7 @@ import ProtectedLayout from "./components/layout/ProtectedLayout";
 import { AuthProvider } from "./lib/context/AuthContext";
 import Footer from "./components/layout/footer";
 import AboutPage from "./app/about/page";
+import ProgramsPage from "./app/programs/page";
 
 const RootLayout = () => {
   return (
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
     children: [
       { path: "", element: <Home /> },
       { path: "about", element: <AboutPage /> },
+      { path: "programs", element: <ProgramsPage /> },
       { path: "login", element: <Login /> },
       { path: "reset-password", element: <ResetPass /> },
 
