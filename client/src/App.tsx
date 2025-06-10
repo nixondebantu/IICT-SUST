@@ -13,6 +13,7 @@ import { AuthProvider } from "./lib/context/AuthContext";
 import Footer from "./components/layout/footer";
 import AboutPage from "./app/about/page";
 import ProgramsPage from "./app/programs/page";
+import ContactPage from "./app/contact/page";
 
 const RootLayout = () => {
   return (
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
       { path: "", element: <Home /> },
       { path: "about", element: <AboutPage /> },
       { path: "programs", element: <ProgramsPage /> },
+      { path: "contact", element: <ContactPage /> },
       { path: "login", element: <Login /> },
       { path: "reset-password", element: <ResetPass /> },
 
