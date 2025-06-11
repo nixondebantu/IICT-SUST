@@ -1,122 +1,110 @@
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useState, useEffect, useCallback, useRef } from "react"; // Added useRef
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-
-interface SlideData {
-  id: number;
-  imageUrl: string;
-  altText: string;
-  title: string;
-  description: string;
-  buttonText?: string;
-  buttonLink?: string;
-}
-
-const slidesData: SlideData[] = [
-  {
-    id: 1,
-    imageUrl:
-      "https://storage.googleapis.com/uxpilot-auth.appspot.com/e5bd52eb93-880fb4ffec943387829f.png",
-    altText:
-      "modern university campus with technology labs, students working on computers, professional academic setting",
-    title: "Pioneering ICT Education & Research at SUST",
-    description:
-      "Shaping the future of technology through innovation, education and research excellence",
-    buttonText: "Explore Programs",
-    buttonLink: "#programs",
-  },
-  {
-    id: 2,
-    imageUrl:
-      "https://storage.googleapis.com/uxpilot-auth.appspot.com/a23b517178-88a86c16a1e1a85804bf.png",
-    altText:
-      "software engineering students collaborating on a project in a modern computer lab, professional academic setting",
-    title: "B.Sc. (Eng.) in Software Engineering",
-    description:
-      "Build your future with cutting-edge skills and knowledge in software development",
-    buttonText: "Learn More",
-    buttonLink: "#programs/software-engineering",
-  },
-  {
-    id: 3,
-    imageUrl:
-      "https://storage.googleapis.com/uxpilot-auth.appspot.com/c69f326c9e-db3b77acb1265ef59b81.png",
-    altText:
-      "graduate students in IT program working on advanced technology projects in a modern university setting",
-    title: "Advance Your Career with our Masters in IT",
-    description:
-      "Specialized graduate programs designed for working professionals and aspiring researchers",
-    buttonText: "Discover MIT",
-    buttonLink: "#programs/masters-in-it",
-  },
-  {
-    id: 4,
-    imageUrl:
-      "https://storage.googleapis.com/uxpilot-auth.appspot.com/fcbdaa8881-6699d20e0c99e604a7ba.png",
-    altText:
-      "university research lab with diverse group of researchers working on technology projects, professional academic setting",
-    title: "Join Our Thriving Research Community",
-    description:
-      "Collaborate on cutting-edge research projects with international recognition",
-    buttonText: "Our Research",
-    buttonLink: "#research",
-  },
-];
+import carouselService from "@/lib/services/carousel.service";// Adjust path if needed
+import { CarouselSlide } from "@/lib/dtos/carousel.dto";
 
 const HeroCarousel: React.FC = () => {
+  const [slides, setSlides] = useState<CarouselSlide[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const AUTOPLAY_INTERVAL = 5000; // 5 seconds
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // This function is what the interval will call
-  const autoAdvanceSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % slidesData.length);
-  }, []); // slidesData.length is constant for this component's lifecycle
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchSlides = async () => {
+      try {
+        setLoading(true);
+        const data = await carouselService.getSlides();
+        setSlides(data);
+        setError(null);
+      } catch (err) {
+        setError("Failed to load slides. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSlides();
+  }, []); // Empty dependency array ensures this runs only once
 
-  // Function to clear existing interval and start a new one
+  const autoAdvanceSlide = useCallback(() => {
+    if (slides.length === 0) return;
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+  }, [slides.length]);
+
   const resetAutoplayInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     intervalRef.current = setInterval(autoAdvanceSlide, AUTOPLAY_INTERVAL);
-  }, [autoAdvanceSlide, AUTOPLAY_INTERVAL]); // AUTOPLAY_INTERVAL is constant
+  }, [autoAdvanceSlide, AUTOPLAY_INTERVAL]);
 
-  // Effect for initial autoplay setup and cleanup on unmount
+  // Effect for autoplay management
   useEffect(() => {
-    resetAutoplayInterval(); // Start interval on mount
-
+    // Start interval only if there are slides and no error
+    if (slides.length > 0 && !error) {
+      resetAutoplayInterval();
+    }
+    // Cleanup on unmount or when dependencies change
     return () => {
-      // Cleanup on unmount
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [resetAutoplayInterval]); // resetAutoplayInterval is stable due to its useCallback deps
+  }, [slides.length, error, resetAutoplayInterval]);
 
-  // Renamed original nextSlide to handleNextButtonClick for clarity
   const handleNextButtonClick = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % slidesData.length);
-    resetAutoplayInterval(); // Reset timer on manual next
+    if (slides.length === 0) return;
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % slides.length);
+    resetAutoplayInterval();
   };
 
-  // Renamed original prevSlide to handlePrevButtonClick for clarity
   const handlePrevButtonClick = () => {
+    if (slides.length === 0) return;
     setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + slidesData.length) % slidesData.length
+      (prevIndex) => (prevIndex - 1 + slides.length) % slides.length
     );
-    resetAutoplayInterval(); // Reset timer on manual prev
+    resetAutoplayInterval();
   };
 
-  // Renamed original goToSlide to handleGoToSlideClick for clarity
   const handleGoToSlideClick = (index: number) => {
     setCurrentIndex(index);
-    resetAutoplayInterval(); // Reset timer on manual jump
+    resetAutoplayInterval();
   };
 
+  // --- Conditional Rendering ---
+  if (loading) {
+    return (
+      <section className="relative h-[600px] w-full flex items-center justify-center bg-gray-200">
+        <div>Loading Carousel...</div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="relative h-[600px] w-full flex items-center justify-center bg-red-100 text-red-700">
+        <div>{error}</div>
+      </section>
+    );
+  }
+
+  if (slides.length === 0) {
+    return (
+      <section className="relative h-[600px] w-full flex items-center justify-center bg-gray-200">
+        <div>No slides available.</div>
+      </section>
+    );
+  }
+
+  // --- Main Render ---
   return (
     <section id="hero-section" className="relative h-[600px] w-full">
       <div id="hero-carousel" className="relative h-full overflow-hidden">
-        {slidesData.map((slide, index) => (
+        {slides.map((slide, index) => (
           <div
             key={slide.id}
             className={`carousel-slide absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
@@ -128,8 +116,8 @@ const HeroCarousel: React.FC = () => {
             <div className="relative h-full">
               <img
                 className="absolute inset-0 w-full h-full object-cover"
-                src={slide.imageUrl}
-                alt={slide.altText}
+                src={slide.image_url}
+                alt={slide.title} // Using title for alt text as it's descriptive
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30"></div>
               <div className="container mx-auto px-6 h-full flex items-center relative z-10">
@@ -140,10 +128,10 @@ const HeroCarousel: React.FC = () => {
                   <p className="text-lg md:text-xl mb-8 opacity-90">
                     {slide.description}
                   </p>
-                  {slide.buttonText && slide.buttonLink && (
-                    <Link to={slide.buttonLink}>
+                  {slide.button_text && slide.button_link && (
+                    <Link to={slide.button_link}>
                       <button className="bg-primary text-white px-6 py-3 rounded-md font-medium inline-flex items-center hover:bg-opacity-90 transition-colors cursor-pointer">
-                        {slide.buttonText}
+                        {slide.button_text}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </button>
                     </Link>
@@ -158,7 +146,7 @@ const HeroCarousel: React.FC = () => {
         <div className="absolute bottom-8 left-0 right-0 z-20 flex justify-center items-center space-x-4">
           <button
             id="prev-slide"
-            onClick={handlePrevButtonClick} // Use the new handler
+            onClick={handlePrevButtonClick}
             aria-label="Previous slide"
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
           >
@@ -166,11 +154,11 @@ const HeroCarousel: React.FC = () => {
           </button>
 
           <div id="carousel-indicators" className="flex items-center space-x-2">
-            {slidesData.map((_, index) => (
+            {slides.map((_, index) => (
               <button
                 key={`indicator-${index}`}
                 aria-label={`Go to slide ${index + 1}`}
-                onClick={() => handleGoToSlideClick(index)} // Use the new handler
+                onClick={() => handleGoToSlideClick(index)}
                 className={`indicator h-1 rounded transition-all duration-300 cursor-pointer ${
                   index === currentIndex
                     ? "bg-primary w-8"
@@ -182,7 +170,7 @@ const HeroCarousel: React.FC = () => {
 
           <button
             id="next-slide"
-            onClick={handleNextButtonClick} // Use the new handler
+            onClick={handleNextButtonClick}
             aria-label="Next slide"
             className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors"
           >
