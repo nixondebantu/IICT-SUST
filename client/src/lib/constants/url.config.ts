@@ -3,4 +3,11 @@ export const APIUrl = {
   auth: {
     login: "/auth/login",
   },
+  carousel: {
+    getSlides: "/carousel",
+    getSlideById: (id: string) => `/carousel/${id}`,
+    createSlide: "/carousel",
+    updateSlide: (id: string) => `/carousel/${id}`,
+    deleteSlide: (id: string) => `/carousel/${id}`,
+  },
 };

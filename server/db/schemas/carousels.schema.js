@@ -6,6 +6,8 @@ export const carousels = pgTable("carousels", {
   title: text("title").notNull(),
   description: text("description"),
   image_url: text("image_url").notNull(),
+  button_text: text("button_text"),
+  button_link: text("button_link"),
   creator_id: integer("creator_id").references(() => users.id, {
     onDelete: "set null",
   }),
