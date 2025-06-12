@@ -13,6 +13,7 @@ import { AuthProvider } from "./lib/context/AuthContext";
 import Footer from "./components/layout/footer";
 import AboutPage from "./app/about/page";
 import ProgramsPage from "./app/programs/page";
+import Notices from "./app/(protected)/dashboard/notices/page";
 
 const RootLayout = () => {
   return (
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
           { path: "carousel", element: <Carousel /> },
           { path: "news", element: <News /> },
           { path: "blog", element: <Blog /> },
+          {path: "notices", element: <Notices /> }, // Assuming Notices is similar to Blog
         ],
       },
     ],

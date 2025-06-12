@@ -10,4 +10,11 @@ export const APIUrl = {
     updateSlide: (id: string) => `/carousel/${id}`,
     deleteSlide: (id: string) => `/carousel/${id}`,
   },
+   notice: {
+    getNotices: "/notices",
+    getNoticeById: (id: string) => `/notices/${id}`,
+    createNotice: "/notices",
+    updateNotice: (id: string) => `/notices/${id}`,
+    deleteNotice: (id: string) => `/notices/${id}`,
+  },
 };
