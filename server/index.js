@@ -5,12 +5,6 @@ import authRoute from "./routes/auth.route.js";
 import carouselRoute from "./routes/carousel.route.js";
 import noticeRoute from "./routes/notice.route.js";
 import tagRoute from "./routes/tag.route.js";
-import express from "express";
-import cors from "cors";
-import config from "./config/index.js";
-import authRoute from "./routes/auth.route.js";
-import carouselRoute from "./routes/carousel.route.js";
-import noticeRoute from "./routes/notice.route.js";
 import directorMessageRoute from "./routes/director_message.route.js";
 const app = express();
 

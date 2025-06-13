@@ -11,6 +11,7 @@ import * as permissionSchema from "./schemas/permissions.schema.js";
 import * as userRolesSchema from "./schemas/userRoles.schema.js";
 import * as rolePermissionsSchema from "./schemas/rolePermissions.schema.js";
 import * as carouselSchema from "./schemas/carousels.schema.js";
+import * as directorMessageSchema from "./schemas/director_message.schema.js";
 
 const schema = {
   ...noticeSchema,
@@ -22,6 +23,7 @@ const schema = {
   ...userRolesSchema,
   ...rolePermissionsSchema,
   ...carouselSchema,
+  ...directorMessageSchema,
 };
 
 const pool = new pg.Pool({
