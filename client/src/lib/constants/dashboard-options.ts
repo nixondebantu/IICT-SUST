@@ -1,4 +1,4 @@
-import { GalleryThumbnails, Newspaper, NotebookPen,Shell } from "lucide-react";
+import { GalleryThumbnails, Newspaper, NotebookPen,Shell,Mails  } from "lucide-react";
 
 export type DashboardOption = {
   label: string;
@@ -32,4 +32,10 @@ export const dashboardOptions: DashboardOption[] = [
     href: "/dashboard/notices",
     Icon: Shell,
   },
+  {
+    label: "Director's Message",
+    description: "Director's message ",
+    href: "/dashboard/director_message",
+    Icon: Mails,
+  }
 ];
