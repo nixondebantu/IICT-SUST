@@ -1,77 +1,69 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { Pencil, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
-
-// UI Components
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// App-specific imports
 import { DirectorMessage } from "@/lib/dtos/directorMessage.dto"; // Adjust path if needed
+import { DirectorMessageFormValues } from "@/lib/validators/directorMessage.validator"; // Adjust path if needed
 import directorMessageService from "@/lib/services/directorMessage.service"; // Adjust path if needed
 import { DirectorMessageForm } from "@/components/forms/DirectorMessageForm";
 
 function DirectorMessagePage() {
-  const [messages, setMessages] = useState<DirectorMessage[]>([]);
+  const [message, setMessage] = useState<DirectorMessage | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingMessage, setEditingMessage] = useState<DirectorMessage | null>(null);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [deletingMessageId, setDeletingMessageId] = useState<number | null>(null);
 
-  const fetchMessages = async () => {
-    try { setLoading(true); setMessages(await directorMessageService.getMessages()); } 
-    catch (error) { toast.error("Failed to fetch messages."); } 
-    finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetchMessages(); }, []);
-
-  const handleCreate = () => { setEditingMessage(null); setIsFormOpen(true); };
-  const handleEdit = (msg: DirectorMessage) => { setEditingMessage(msg); setIsFormOpen(true); };
-  const handleDelete = (id: number) => { setDeletingMessageId(id); setIsAlertOpen(true); };
-
-  const confirmDelete = async () => {
-    if (!deletingMessageId) return;
+  const fetchMessage = async () => {
     try {
-      await directorMessageService.deleteMessage(deletingMessageId);
-      toast.success("Message deleted!");
-      fetchMessages();
+      setLoading(true);
+      const data = await directorMessageService.getMessage();
+      setMessage(data);
     } catch (error) {
-      toast.error("Failed to delete message.");
+      toast.error("Failed to fetch director's message.");
     } finally {
-      setIsAlertOpen(false);
-      setDeletingMessageId(null);
+      setLoading(false);
     }
   };
 
-  const handleFormSubmit = async (formData: FormData, isEditing: boolean) => {
+  useEffect(() => {
+    fetchMessage();
+  }, []);
+
+  const handleFormSubmit = async (data: DirectorMessageFormValues) => {
     setIsSubmitting(true);
     try {
-      if (isEditing && editingMessage) {
-        await directorMessageService.updateMessage(editingMessage.id, formData);
-        toast.success("Message updated!");
+      // If a message exists, update it. Otherwise, create a new one.
+      if (message) {
+        await directorMessageService.updateMessage(message.id, data);
+        toast.success("Message updated successfully!");
       } else {
-        await directorMessageService.createMessage(formData);
-        toast.success("Message created!");
+        await directorMessageService.createMessage(data);
+        toast.success("Message created successfully!");
       }
       setIsFormOpen(false);
-      fetchMessages();
-    } catch (error) {
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} message.`);
+      fetchMessage(); // Re-fetch the message to show the latest data
+    } catch (error: any) {
+      // Handle the specific 409 Conflict error from the backend
+      if (error.response && error.response.status === 409) {
+        toast.error("Conflict: A message already exists.", {
+          description: "Please refresh the page and edit the existing message.",
+        });
+      } else {
+        toast.error(`Failed to ${message ? 'update' : 'create'} message.`);
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex flex-col max-w-7xl p-6 gap-4">
+    <div className="flex flex-col max-w-4xl p-6 gap-4 mx-auto">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem><BreadcrumbLink asChild to={""}><Link to="/dashboard">Dashboard</Link></BreadcrumbLink></BreadcrumbItem>
@@ -82,69 +74,55 @@ function DirectorMessagePage() {
       
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Manage Director's Message</h1>
-        <Button onClick={handleCreate}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Create New
-        </Button>
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Stored Messages</CardTitle></CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[80px]">Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Designation</TableHead>
-                <TableHead className="w-[120px]">Status</TableHead>
-                <TableHead className="text-right w-[120px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? ( <TableRow><TableCell colSpan={5} className="text-center h-24">Loading...</TableCell></TableRow> ) 
-              : messages.length > 0 ? (
-                messages.map((msg) => (
-                  <TableRow key={msg.id}>
-                    <TableCell>
-                      {msg.image_url ? (
-                        <img src={msg.image_url} alt={msg.name} className="h-12 w-12 object-cover rounded-full"/>
-                      ) : (
-                        <div className="h-12 w-12 bg-muted rounded-full"/>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-medium">{msg.name}</TableCell>
-                    <TableCell>{msg.designation}</TableCell>
-                    <TableCell>
-                      <Badge variant={msg.is_active ? "default" : "secondary"} className={msg.is_active ? "bg-green-600" : ""}>
-                        {msg.is_active ? "Active" : "Inactive"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(msg)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(msg.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : ( <TableRow><TableCell colSpan={5} className="text-center h-24">No messages found.</TableCell></TableRow> )}
-            </TableBody>
-          </Table>
+        <CardHeader>
+          <CardTitle>Current Message</CardTitle>
+          <CardDescription>This is the single message that will be displayed on the public website.</CardDescription>
+        </CardHeader>
+        <CardContent className="min-h-[200px]">
+          {loading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ) : message ? (
+            <blockquote className="mt-6 border-l-2 pl-6 italic whitespace-pre-wrap">
+              {message.message}
+            </blockquote>
+          ) : (
+            <div className="text-center text-muted-foreground py-10">
+              <p>No message has been set.</p>
+              <Button className="mt-4" onClick={() => setIsFormOpen(true)}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Create Message
+              </Button>
+            </div>
+          )}
         </CardContent>
+        {message && !loading && (
+          <CardFooter className="border-t px-6 py-4 flex justify-between items-center">
+            <div className="text-sm text-muted-foreground">
+              <p>Last updated by: {message.creator?.name || "Unknown"}</p>
+              <p>On: {new Date(message.created_at).toLocaleDateString()}</p>
+            </div>
+            <Button variant="outline" onClick={() => setIsFormOpen(true)}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit Message
+            </Button>
+          </CardFooter>
+        )}
       </Card>
-
-      <DirectorMessageForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} onSubmit={handleFormSubmit} initialData={editingMessage} isSubmitting={isSubmitting} />
       
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently delete this message.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DirectorMessageForm
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSubmit={handleFormSubmit}
+        initialData={message}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 }

@@ -17,11 +17,10 @@ export const APIUrl = {
     updateNotice: (id: string) => `/notices/${id}`,
     deleteNotice: (id: string) => `/notices/${id}`,
   },
-   directorMessage: {
-    getMessages: "/director-messages",
+    directorMessage: {
+    getMessage: "/director-messages", 
     getMessageById: (id: string) => `/director-messages/${id}`,
-    createMessage: "/director-messages",
+    createMessage: "/director-messages", 
     updateMessage: (id: string) => `/director-messages/${id}`,
-    deleteMessage: (id: string) => `/director-messages/${id}`,
   },
 };

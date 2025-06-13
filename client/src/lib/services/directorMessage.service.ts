@@ -1,30 +1,46 @@
 import { APIUrl } from "../constants/url.config";
 import { DirectorMessage } from "../dtos/directorMessage.dto";
+import { DirectorMessageFormValues } from "../validators/directorMessage.validator";
 import httpClient from "../utils/httpClient";
 
 class DirectorMessageService {
-  async getMessages(): Promise<DirectorMessage[]> {
-    const response = await httpClient.get<DirectorMessage[]>(APIUrl.directorMessage.getMessages);
-    return response.data;
-  }
-
-  async createMessage(data: FormData) {
-    const response = await httpClient.post(APIUrl.directorMessage.createMessage, data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-    return response.data;
-  }
-
-  async updateMessage(id: number, data: FormData) {
-    const response = await httpClient.put(APIUrl.directorMessage.updateMessage(String(id)), data, {
-        headers: { "Content-Type": "multipart/form-data" },
+  /**
+   * Fetches the single director's message.
+   * Can return null if no message is found (404).
+   */
+  async getMessage(): Promise<DirectorMessage | null> {
+    try {
+      const response = await httpClient.get<DirectorMessage>(
+        APIUrl.directorMessage.getMessage
+      );
+      return response.data;
+    } catch (error: any) {
+      if (error.response && error.response.status === 404) {
+        return null; // No message found, this is an expected outcome
       }
+      throw error; // Re-throw other errors
+    }
+  }
+
+  /**
+   * Creates the single director's message.
+   */
+  async createMessage(data: DirectorMessageFormValues) {
+    const response = await httpClient.post(
+      APIUrl.directorMessage.createMessage,
+      data
     );
     return response.data;
   }
 
-  async deleteMessage(id: number) {
-    const response = await httpClient.delete(APIUrl.directorMessage.deleteMessage(String(id)));
+  /**
+   * Updates the existing director's message.
+   */
+  async updateMessage(id: number, data: DirectorMessageFormValues) {
+    const response = await httpClient.put(
+      APIUrl.directorMessage.updateMessage(String(id)),
+      data
+    );
     return response.data;
   }
 }
