@@ -5,6 +5,7 @@ import authRoute from "./routes/auth.route.js";
 import carouselRoute from "./routes/carousel.route.js";
 import noticeRoute from "./routes/notice.route.js";
 import tagRoute from "./routes/tag.route.js";
+import directorMessageRoute from "./routes/director_message.route.js";
 const app = express();
 
 app.use(express.json());
@@ -18,6 +19,7 @@ app.use("/auth", authRoute);
 app.use("/carousel", carouselRoute);
 app.use("/notices", noticeRoute);
 app.use("/tags", tagRoute);
+app.use("/director-messages", directorMessageRoute);
 const PORT = config.server.port || 5000;
 
 app.listen(PORT, () => {
