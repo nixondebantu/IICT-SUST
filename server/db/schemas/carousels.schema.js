@@ -1,5 +1,6 @@
 import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { users } from "./users.schema.js";
+import { relations } from "drizzle-orm";
 
 export const carousels = pgTable("carousels", {
   id: serial("id").primaryKey(),
@@ -13,3 +14,10 @@ export const carousels = pgTable("carousels", {
   }),
   created_at: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const carouselsRelations = relations(carousels, ({ one }) => ({
+  creator: one(users, {
+    fields: [carousels.creator_id],
+    references: [users.id],
+  }),
+}));

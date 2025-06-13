@@ -1,4 +1,4 @@
-import { GalleryThumbnails, Newspaper, NotebookPen } from "lucide-react";
+import { GalleryThumbnails, Newspaper, NotebookPen,Shell,Mails  } from "lucide-react";
 
 export type DashboardOption = {
   label: string;
@@ -26,4 +26,16 @@ export const dashboardOptions: DashboardOption[] = [
     href: "/dashboard/blog",
     Icon: NotebookPen,
   },
+  {
+    label: "Notices",
+    description: "Manage the IICT notices",
+    href: "/dashboard/notices",
+    Icon: Shell,
+  },
+  {
+    label: "Director's Message",
+    description: "Director's message ",
+    href: "/dashboard/director_message",
+    Icon: Mails,
+  }
 ];
