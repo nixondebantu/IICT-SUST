@@ -14,6 +14,10 @@ import Footer from "./components/layout/footer";
 import AboutPage from "./app/about/page";
 import ProgramsPage from "./app/programs/page";
 import ContactPage from "./app/contact/page";
+import Notices from "./app/(protected)/dashboard/notices/page";
+import DirectorMessagePage from "./app/(protected)/dashboard/director_message/page";
+import NoticePage from "./app/notices/page";
+import NoticeDetailsPage from "./app/notices/[id]/page";
 
 const RootLayout = () => {
   return (
@@ -35,6 +39,8 @@ const router = createBrowserRouter([
       { path: "about", element: <AboutPage /> },
       { path: "programs", element: <ProgramsPage /> },
       { path: "contact", element: <ContactPage /> },
+      { path: "notices", element: <NoticePage /> },
+      { path: "notices/:id", element: <NoticeDetailsPage /> },
       { path: "login", element: <Login /> },
       { path: "reset-password", element: <ResetPass /> },
 
@@ -46,6 +52,8 @@ const router = createBrowserRouter([
           { path: "carousel", element: <Carousel /> },
           { path: "news", element: <News /> },
           { path: "blog", element: <Blog /> },
+          { path: "notices", element: <Notices /> }, // Assuming Notices is similar to Blog
+          { path: "director_message", element: <DirectorMessagePage /> }, // Placeholder for Director's Message
         ],
       },
     ],

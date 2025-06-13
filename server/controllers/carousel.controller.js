@@ -6,34 +6,38 @@ import { cloudinary } from "../services/file.service.js";
 const createCarousel = async (req, res) => {
   const { title, description, button_text, button_link } = req.body;
 
-  if (!title) {
-    res.status(400).json({ message: "Title is required." });
-    return;
+  if (!title || !req.file) {
+    return res.status(400).json({ message: "Title and image are required." });
   }
-  try {
-    let coverImageUrl = null;
-    if (req.file) {
-      coverImageUrl = req.file.path;
-    }
-    if (!coverImageUrl) {
-      res.status(400).json({ message: "Image is required." });
-      return;
-    }
 
-    const carousel = await db
+  try {
+    const [newCarousel] = await db
       .insert(carousels)
       .values({
         title,
         description,
-        image_url: coverImageUrl,
+        image_url: req.file.path,
         button_text,
         button_link,
         creator_id: parseInt(req.user.id, 10),
       })
-      .returning();
+      .returning({ id: carousels.id });
+
+    const carouselData = await db.query.carousels.findFirst({
+      where: eq(carousels.id, newCarousel.id),
+      with: {
+        creator: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
     res.status(201).json({
       message: "Carousel created successfully",
-      carousel: carousel[0],
+      carousel: carouselData,
     });
   } catch (error) {
     console.error("Create carousel error:", error);
@@ -43,7 +47,16 @@ const createCarousel = async (req, res) => {
 
 const getCarousels = async (req, res) => {
   try {
-    const carouselsData = await db.select().from(carousels);
+    const carouselsData = await db.query.carousels.findMany({
+      with: {
+        creator: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
     res.status(200).json(carouselsData);
   } catch (error) {
     console.error("Get carousels error:", error);
@@ -54,17 +67,22 @@ const getCarousels = async (req, res) => {
 const getCarouselById = async (req, res) => {
   const { id } = req.params;
   try {
-    const carousel = await db
-      .select()
-      .from(carousels)
-      .where(eq(carousels.id, parseInt(id, 10)))
-      .limit(1);
+    const carousel = await db.query.carousels.findFirst({
+      where: eq(carousels.id, parseInt(id, 10)),
+      with: {
+        creator: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
 
-    if (carousel.length === 0) {
+    if (!carousel) {
       return res.status(404).json({ message: "Carousel not found." });
     }
-
-    res.status(200).json(carousel[0]);
+    res.status(200).json(carousel);
   } catch (error) {
     console.error("Get carousel by ID error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -102,7 +120,6 @@ const updateCarousel = async (req, res) => {
   const { title, description, button_text, button_link } = req.body;
 
   try {
-    // Find the existing carousel
     const existingCarousel = await db
       .select()
       .from(carousels)
@@ -113,19 +130,15 @@ const updateCarousel = async (req, res) => {
       return res.status(404).json({ message: "Carousel not found." });
     }
 
-    // Prepare the data to update
     const updatedData = {};
     if (title) updatedData.title = title;
     if (description) updatedData.description = description;
-    // Conditionally add new fields if they are provided in the request
     if (button_text !== undefined) updatedData.button_text = button_text;
     if (button_link !== undefined) updatedData.button_link = button_link;
 
     let coverImageUrl = existingCarousel[0].image_url;
 
     if (req.file) {
-      // If there's a new image, upload and delete the old one from Cloudinary
-      // Only attempt to destroy if there was an existing image_url
       if (coverImageUrl) {
         const publicId = coverImageUrl.split("/").pop().split(".")[0];
         await cloudinary.uploader.destroy(publicId);
@@ -135,16 +148,26 @@ const updateCarousel = async (req, res) => {
 
     updatedData.image_url = coverImageUrl;
 
-    // Update the carousel in the database
-    const updatedCarousel = await db
+    await db
       .update(carousels)
       .set(updatedData)
-      .where(eq(carousels.id, parseInt(id, 10)))
-      .returning();
+      .where(eq(carousels.id, parseInt(id, 10)));
+
+    const updatedCarouselData = await db.query.carousels.findFirst({
+      where: eq(carousels.id, parseInt(id, 10)),
+      with: {
+        creator: {
+          columns: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
 
     res.status(200).json({
       message: "Carousel updated successfully",
-      carousel: updatedCarousel[0],
+      carousel: updatedCarouselData,
     });
   } catch (error) {
     console.error("Update carousel error:", error);
