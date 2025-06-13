@@ -14,8 +14,7 @@ import { files } from "./file.schema.js";
 export const notices = pgTable("notices", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
-  description: text("description"),
-  short_description: varchar("short_description", { length: 255 }).notNull(),
+  description: text("description").notNull(),
   date: timestamp("date").notNull(),
   creator_id: integer("creator_id").references(() => users.id, {
     onDelete: "set null",

@@ -30,19 +30,12 @@ const validateFilesInput = (filesData) => {
 };
 
 const createNotice = async (req, res) => {
-  const {
-    title,
-    description,
-    short_description,
-    date,
-    tagIds,
-    files: filesData,
-  } = req.body;
+  const { title, description, date, tagIds, files: filesData } = req.body;
 
-  if (!title || !date || !short_description) {
+  if (!title || !date || !description) {
     return res
       .status(400)
-      .json({ message: "Title, date, and short_description are required." });
+      .json({ message: "Title, date, and description are required." });
   }
 
   const filesError = validateFilesInput(filesData);
@@ -57,7 +50,6 @@ const createNotice = async (req, res) => {
         .values({
           title,
           description,
-          short_description,
           date: new Date(date),
           creator_id: parseInt(req.user.id, 10),
         })
@@ -123,8 +115,7 @@ const getNotices = async (req, res) => {
       conditions.push(
         or(
           ilike(notices.title, searchKeyword),
-          ilike(notices.description, searchKeyword),
-          ilike(notices.short_description, searchKeyword)
+          ilike(notices.description, searchKeyword)
         )
       );
     }
@@ -181,11 +172,22 @@ const getNotices = async (req, res) => {
       }),
     ]);
 
+    const processedNotices = noticesData.map((notice) => {
+      const newNotice = { ...notice };
+      if (newNotice.description) {
+        const words = newNotice.description.split(" ");
+        if (words.length > 20) {
+          newNotice.description = words.slice(0, 20).join(" ") + " ...";
+        }
+      }
+      return newNotice;
+    });
+
     const totalNotices = totalResult[0].total;
     const totalPages = Math.ceil(totalNotices / limitNumber);
 
     res.status(200).json({
-      notices: noticesData,
+      notices: processedNotices,
       totalNotices,
       totalPages,
       currentPage: pageNumber,
@@ -221,14 +223,7 @@ const getNoticeById = async (req, res) => {
 
 const updateNotice = async (req, res) => {
   const { id } = req.params;
-  const {
-    title,
-    description,
-    short_description,
-    date,
-    tagIds,
-    files: filesData,
-  } = req.body;
+  const { title, description, date, tagIds, files: filesData } = req.body;
   const noticeId = parseInt(id, 10);
 
   const filesError = validateFilesInput(filesData);
@@ -249,8 +244,7 @@ const updateNotice = async (req, res) => {
 
       const updatedData = {};
       if (title) updatedData.title = title;
-      if (description !== undefined) updatedData.description = description;
-      if (short_description) updatedData.short_description = short_description;
+      if (description) updatedData.description = description;
       if (date) updatedData.date = new Date(date);
 
       if (Object.keys(updatedData).length > 0) {
