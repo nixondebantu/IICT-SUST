@@ -41,10 +41,13 @@ export default function NoticeSection() {
             </h2>
             <div className="w-20 h-1 bg-primary mb-0"></div>
           </div>
-          <span className="text-primary font-medium inline-flex items-center mt-4 md:mt-0 hover:underline cursor-pointer">
+          <Link
+            to={"/notices"}
+            className="text-primary font-medium inline-flex items-center mt-4 md:mt-0 hover:underline cursor-pointer"
+          >
             View All Notices
             <FontAwesomeIcon icon={["fas", "arrow-right"]} className="ml-2" />
-          </span>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
