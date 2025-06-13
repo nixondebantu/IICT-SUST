@@ -11,6 +11,7 @@ import * as permissionSchema from "./schemas/permissions.schema.js";
 import * as userRolesSchema from "./schemas/userRoles.schema.js";
 import * as rolePermissionsSchema from "./schemas/rolePermissions.schema.js";
 import * as carouselSchema from "./schemas/carousels.schema.js";
+import * as fileSchema from "./schemas/file.schema.js";
 
 const schema = {
   ...noticeSchema,
@@ -21,6 +22,7 @@ const schema = {
   ...permissionSchema,
   ...userRolesSchema,
   ...rolePermissionsSchema,
+  ...fileSchema,
   ...carouselSchema,
 };
 

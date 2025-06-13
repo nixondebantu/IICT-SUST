@@ -13,30 +13,52 @@ import {
 import { db } from "../db/index.js";
 import { notices } from "../db/schemas/notice.schema.js";
 import { noticesToTags } from "../db/schemas/notices_to_tags.schema.js";
-import { cloudinary } from "../services/file.service.js";
+import { files } from "../db/schemas/file.schema.js";
+
+const validateFilesInput = (filesData) => {
+  if (filesData) {
+    if (!Array.isArray(filesData)) {
+      return "Files must be an array.";
+    }
+    for (const file of filesData) {
+      if (!file.url || !file.title) {
+        return "Each file object must have a 'url' and a 'title'.";
+      }
+    }
+  }
+  return null;
+};
 
 const createNotice = async (req, res) => {
-  const { title, description, date, tagIds } = req.body;
+  const {
+    title,
+    description,
+    short_description,
+    date,
+    tagIds,
+    files: filesData,
+  } = req.body;
 
-  if (!title || !date) {
-    return res.status(400).json({ message: "Title and date are required." });
+  if (!title || !date || !short_description) {
+    return res
+      .status(400)
+      .json({ message: "Title, date, and short_description are required." });
   }
 
-  if (tagIds && !Array.isArray(tagIds)) {
-    return res.status(400).json({ message: "tagIds must be an array." });
+  const filesError = validateFilesInput(filesData);
+  if (filesError) {
+    return res.status(400).json({ message: filesError });
   }
 
   try {
     const newNotice = await db.transaction(async (tx) => {
-      const fileUrls = req.files?.map((file) => file.path) || [];
-
       const [createdNotice] = await tx
         .insert(notices)
         .values({
           title,
           description,
+          short_description,
           date: new Date(date),
-          file_url: fileUrls.length > 0 ? fileUrls : null,
           creator_id: parseInt(req.user.id, 10),
         })
         .returning();
@@ -49,37 +71,36 @@ const createNotice = async (req, res) => {
         await tx.insert(noticesToTags).values(tagsToInsert);
       }
 
-      // Use `query` for rich relation fetching after creation
+      if (filesData && filesData.length > 0) {
+        const filesToInsert = filesData.map((file) => ({
+          ...file,
+          entity_id: createdNotice.id,
+          entity_type: "notice",
+        }));
+        await tx.insert(files).values(filesToInsert);
+      }
+
       return tx.query.notices.findFirst({
         where: eq(notices.id, createdNotice.id),
         with: {
-          creator: { columns: { password_hash: false } },
+          creator: { columns: { password: false } },
           noticesToTags: { with: { tag: true } },
+          files: true,
         },
       });
     });
 
-    res.status(201).json({
-      message: "Notice created successfully",
-      notice: newNotice,
-    });
+    res
+      .status(201)
+      .json({ message: "Notice created successfully", notice: newNotice });
   } catch (error) {
     console.error("Create notice error:", error);
-    // If the transaction fails, attempt to delete any files uploaded to Cloudinary
-    if (req.files) {
-      for (const file of req.files) {
-        // Extract public_id from the file path/URL
-        const publicId = file.path.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId).catch(console.error);
-      }
-    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const getNotices = async (req, res) => {
   try {
-    // 1. Extract query parameters
     const {
       page = 1,
       limit = 10,
@@ -95,7 +116,6 @@ const getNotices = async (req, res) => {
     const limitNumber = parseInt(limit, 10);
     const offset = (pageNumber - 1) * limitNumber;
 
-    // 2. Build dynamic filter conditions
     const conditions = [];
 
     if (search) {
@@ -103,7 +123,8 @@ const getNotices = async (req, res) => {
       conditions.push(
         or(
           ilike(notices.title, searchKeyword),
-          ilike(notices.description, searchKeyword)
+          ilike(notices.description, searchKeyword),
+          ilike(notices.short_description, searchKeyword)
         )
       );
     }
@@ -116,7 +137,6 @@ const getNotices = async (req, res) => {
       conditions.push(lte(notices.date, new Date(endDate)));
     }
 
-    // Handle tag filtering using a subquery
     if (tag) {
       const tagIds = Array.isArray(tag)
         ? tag.map((t) => parseInt(t, 10))
@@ -128,7 +148,6 @@ const getNotices = async (req, res) => {
         .where(inArray(noticesToTags.tag_id, tagIds));
 
       if (noticeIdsWithTag.length === 0) {
-        // If no notices match the tag, return empty result immediately
         return res.status(200).json({
           notices: [],
           totalNotices: 0,
@@ -143,11 +162,8 @@ const getNotices = async (req, res) => {
 
     const finalConditions = and(...conditions);
 
-    // 3. Perform two queries: one for the total count, one for the paginated data
     const [totalResult, noticesData] = await Promise.all([
-      // Count query
       db.select({ total: count() }).from(notices).where(finalConditions),
-      // Data query
       db.query.notices.findMany({
         where: finalConditions,
         orderBy:
@@ -155,11 +171,12 @@ const getNotices = async (req, res) => {
             ? order === "asc"
               ? [asc(notices.date)]
               : [desc(notices.date)]
-            : [desc(notices.created_at)], // Default sort
+            : [desc(notices.created_at)],
         limit: limitNumber,
         offset: offset,
         with: {
           noticesToTags: { with: { tag: true } },
+          files: true,
         },
       }),
     ]);
@@ -167,7 +184,6 @@ const getNotices = async (req, res) => {
     const totalNotices = totalResult[0].total;
     const totalPages = Math.ceil(totalNotices / limitNumber);
 
-    // 4. Send the response
     res.status(200).json({
       notices: noticesData,
       totalNotices,
@@ -186,8 +202,9 @@ const getNoticeById = async (req, res) => {
     const notice = await db.query.notices.findFirst({
       where: eq(notices.id, parseInt(id, 10)),
       with: {
-        creator: { columns: { password_hash: false } },
+        creator: { columns: { password: false } },
         noticesToTags: { with: { tag: true } },
+        files: true,
       },
     });
 
@@ -204,14 +221,25 @@ const getNoticeById = async (req, res) => {
 
 const updateNotice = async (req, res) => {
   const { id } = req.params;
-  const { title, description, date, tagIds } = req.body;
+  const {
+    title,
+    description,
+    short_description,
+    date,
+    tagIds,
+    files: filesData,
+  } = req.body;
   const noticeId = parseInt(id, 10);
-  let newFileUrls = [];
+
+  const filesError = validateFilesInput(filesData);
+  if (filesError) {
+    return res.status(400).json({ message: filesError });
+  }
 
   try {
     const updatedNotice = await db.transaction(async (tx) => {
       const [existingNotice] = await tx
-        .select({ file_url: notices.file_url })
+        .select({ id: notices.id })
         .from(notices)
         .where(eq(notices.id, noticeId));
 
@@ -222,19 +250,8 @@ const updateNotice = async (req, res) => {
       const updatedData = {};
       if (title) updatedData.title = title;
       if (description !== undefined) updatedData.description = description;
+      if (short_description) updatedData.short_description = short_description;
       if (date) updatedData.date = new Date(date);
-
-      if (req.files && req.files.length > 0) {
-        // Delete old files from Cloudinary if they exist
-        if (existingNotice.file_url?.length > 0) {
-          for (const url of existingNotice.file_url) {
-            const publicId = url.split("/").pop().split(".")[0];
-            await cloudinary.uploader.destroy(publicId).catch(console.error);
-          }
-        }
-        newFileUrls = req.files.map((file) => file.path);
-        updatedData.file_url = newFileUrls;
-      }
 
       if (Object.keys(updatedData).length > 0) {
         await tx
@@ -257,11 +274,28 @@ const updateNotice = async (req, res) => {
         }
       }
 
+      if (filesData !== undefined) {
+        await tx
+          .delete(files)
+          .where(
+            and(eq(files.entity_id, noticeId), eq(files.entity_type, "notice"))
+          );
+        if (filesData.length > 0) {
+          const filesToInsert = filesData.map((file) => ({
+            ...file,
+            entity_id: noticeId,
+            entity_type: "notice",
+          }));
+          await tx.insert(files).values(filesToInsert);
+        }
+      }
+
       return tx.query.notices.findFirst({
         where: eq(notices.id, noticeId),
         with: {
-          creator: { columns: { password_hash: false } },
+          creator: { columns: { password: false } },
           noticesToTags: { with: { tag: true } },
+          files: true,
         },
       });
     });
@@ -271,14 +305,6 @@ const updateNotice = async (req, res) => {
       notice: updatedNotice,
     });
   } catch (error) {
-    // If the transaction fails, delete any newly uploaded files
-    if (newFileUrls.length > 0) {
-      for (const url of newFileUrls) {
-        const publicId = url.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId).catch(console.error);
-      }
-    }
-
     if (error.message === "NoticeNotFound") {
       return res.status(404).json({ message: "Notice not found." });
     }
@@ -289,26 +315,31 @@ const updateNotice = async (req, res) => {
 
 const deleteNotice = async (req, res) => {
   const { id } = req.params;
+  const noticeId = parseInt(id, 10);
+
   try {
-    const [deletedNotice] = await db
-      .delete(notices)
-      .where(eq(notices.id, parseInt(id, 10)))
-      .returning();
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(files)
+        .where(
+          and(eq(files.entity_id, noticeId), eq(files.entity_type, "notice"))
+        );
 
-    if (!deletedNotice) {
-      return res.status(404).json({ message: "Notice not found." });
-    }
+      const [deletedNotice] = await tx
+        .delete(notices)
+        .where(eq(notices.id, noticeId))
+        .returning();
 
-    // Clean up associated files from Cloudinary
-    if (deletedNotice.file_url?.length > 0) {
-      for (const url of deletedNotice.file_url) {
-        const publicId = url.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(publicId).catch(console.error);
+      if (!deletedNotice) {
+        throw new Error("NoticeNotFound");
       }
-    }
+    });
 
     return res.status(200).json({ message: "Notice deleted successfully." });
   } catch (error) {
+    if (error.message === "NoticeNotFound") {
+      return res.status(404).json({ message: "Notice not found." });
+    }
     console.error("Delete notice error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
