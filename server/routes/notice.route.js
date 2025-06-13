@@ -16,34 +16,24 @@ const router = express.Router();
 router.get("/", getNotices);
 
 // Protected routes for managing notices
-router.get(
-  "/:id",
-  validateJWT,
-  rbacMiddleware("Notice"), // Assuming 'edit:Notice' permission
-  getNoticeById
-);
+router.get("/:id", getNoticeById);
 
 router.post(
   "/",
   validateJWT,
-  rbacMiddleware("Notice"), // Assuming 'create:Notice' permission
-  assetUpload.single("file"), // Use assetUpload for files like PDFs, field name "file"
+  rbacMiddleware("Notice"),
+  assetUpload.array("file"),
   createNotice
 );
 
 router.put(
   "/:id",
   validateJWT,
-  rbacMiddleware("Notice"), // Assuming 'edit:Notice' permission
-  assetUpload.single("file"),
+  rbacMiddleware("Notice"),
+  assetUpload.array("file"),
   updateNotice
 );
 
-router.delete(
-  "/:id",
-  validateJWT,
-  rbacMiddleware("Notice"), // Assuming 'delete:Notice' permission
-  deleteNotice
-);
+router.delete("/:id", validateJWT, rbacMiddleware("Notice"), deleteNotice);
 
 export default router;
