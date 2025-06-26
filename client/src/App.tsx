@@ -17,6 +17,7 @@ import Notices from "./app/(protected)/dashboard/notices/page";
 import DirectorMessagePage from "./app/(protected)/dashboard/director_message/page";
 import NoticePage from "./app/notices/page";
 import NoticeDetailsPage from "./app/notices/[id]/page";
+import CreateNoticePage from "./app/(protected)/dashboard/notices/new/page";
 
 const RootLayout = () => {
   return (
@@ -50,7 +51,8 @@ const router = createBrowserRouter([
           { path: "carousel", element: <Carousel /> },
           { path: "news", element: <News /> },
           { path: "blog", element: <Blog /> },
-          { path: "notices", element: <Notices /> }, // Assuming Notices is similar to Blog
+          { path: "notices", element: <Notices /> },
+          { path: "notices/new", element: <CreateNoticePage /> },
           { path: "director_message", element: <DirectorMessagePage /> }, // Placeholder for Director's Message
         ],
       },

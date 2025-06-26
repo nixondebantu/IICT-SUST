@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -8,14 +9,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import useTagsAction from "@/hooks/useTagsAction.hook";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router";
-import { useDebounce } from "use-debounce";
+import { useSearchParams } from "react-router-dom";
+// Corrected import and usage
+import { useDebounce } from "@/hooks/useDebounce.hook";
 
 export default function NoticeFilter() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { useTagsListQuery } = useTagsAction();
+  const { data: tagsData, isLoading: isTagsLoading } = useTagsListQuery({
+    type: "notice",
+  });
 
+  // ... (rest of your state initializations) ...
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
@@ -25,7 +33,7 @@ export default function NoticeFilter() {
   const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "date");
   const [order, setOrder] = useState(searchParams.get("order") || "desc");
 
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     const newParams = new URLSearchParams(searchParams);
@@ -33,6 +41,12 @@ export default function NoticeFilter() {
       newParams.set("search", debouncedSearchTerm);
     } else {
       newParams.delete("search");
+    }
+    newParams.delete("tag");
+    if (selectedTags.length > 0) {
+      selectedTags.forEach((tagId) => {
+        newParams.append("tag", tagId);
+      });
     }
 
     newParams.set("sortBy", sortBy);
@@ -91,24 +105,27 @@ export default function NoticeFilter() {
         <div>
           <Label className="mb-2 block">Categories</Label>
           <div className="space-y-2">
-            {/* {MOCK_CATEGORIES.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`cat-${category.id}`}
-                  checked={selectedTags.includes(String(category.id))}
-                  onCheckedChange={(checked) =>
-                    handleTagChange(String(category.id), !!checked)
-                  }
-                />
-                <Label
-                  htmlFor={`cat-${category.id}`}
-                  className="font-normal text-sm"
-                >
-                  {category.name}
-                </Label>
-              </div>
-            ))} */}
-            {/* TODO: List tags here */}
+            {isTagsLoading ? (
+              <p className="text-sm text-muted-foreground">Loading tags...</p>
+            ) : (
+              tagsData?.map((tag) => (
+                <div key={tag.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`cat-${tag.id}`}
+                    checked={selectedTags.includes(String(tag.id))}
+                    onCheckedChange={(checked) =>
+                      handleTagChange(String(tag.id), !!checked)
+                    }
+                  />
+                  <Label
+                    htmlFor={`cat-${tag.id}`}
+                    className="font-normal text-sm"
+                  >
+                    {tag.value}
+                  </Label>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

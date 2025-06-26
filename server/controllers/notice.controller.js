@@ -15,6 +15,40 @@ import { notices } from "../db/schemas/notice.schema.js";
 import { noticesToTags } from "../db/schemas/notices_to_tags.schema.js";
 import { files } from "../db/schemas/file.schema.js";
 
+const formatNoticeForResponse = (notice) => {
+  if (!notice) {
+    return null;
+  }
+
+  // Creator can be null if the user was deleted and the foreign key was set to null.
+  const creator = notice.creator
+    ? {
+        id: notice.creator.id,
+        name: notice.creator.name,
+        email: notice.creator.email,
+      }
+    : null;
+
+  return {
+    id: notice.id,
+    title: notice.title,
+    description: notice.description,
+    date: notice.date.toISOString(),
+    creator_id: notice.creator_id,
+    creator,
+    tags: notice.noticesToTags.map((join) => ({
+      id: join.tag.id,
+      value: join.tag.value,
+      type: join.tag.type,
+    })),
+    files: notice.files.map((file) => ({
+      id: file.id,
+      title: file.title,
+      url: file.url,
+    })),
+  };
+};
+
 const validateFilesInput = (filesData) => {
   if (filesData) {
     if (!Array.isArray(filesData)) {
@@ -82,9 +116,10 @@ const createNotice = async (req, res) => {
       });
     });
 
-    res
-      .status(201)
-      .json({ message: "Notice created successfully", notice: newNotice });
+    res.status(201).json({
+      message: "Notice created successfully",
+      notice: formatNoticeForResponse(newNotice),
+    });
   } catch (error) {
     console.error("Create notice error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -140,8 +175,8 @@ const getNotices = async (req, res) => {
 
       if (noticeIdsWithTag.length === 0) {
         return res.status(200).json({
-          notices: [],
-          totalNotices: 0,
+          result: [],
+          total: 0,
           totalPages: 0,
           currentPage: pageNumber,
         });
@@ -173,22 +208,28 @@ const getNotices = async (req, res) => {
     ]);
 
     const processedNotices = noticesData.map((notice) => {
-      const newNotice = { ...notice };
-      if (newNotice.description) {
-        const words = newNotice.description.split(" ");
+      const formattedNotice = formatNoticeForResponse(notice);
+
+      // add ... for title if that has length more then 200 letter
+      if (formattedNotice.title && formattedNotice.title.length > 100) {
+        formattedNotice.title = formattedNotice.title.slice(0, 100) + " ...";
+      }
+
+      if (formattedNotice.description) {
+        const words = formattedNotice.description.split(" ");
         if (words.length > 20) {
-          newNotice.description = words.slice(0, 20).join(" ") + " ...";
+          formattedNotice.description = words.slice(0, 20).join(" ") + " ...";
         }
       }
-      return newNotice;
+      return formattedNotice;
     });
 
-    const totalNotices = totalResult[0].total;
-    const totalPages = Math.ceil(totalNotices / limitNumber);
+    const total = totalResult[0].total;
+    const totalPages = Math.ceil(total / limitNumber);
 
     res.status(200).json({
-      notices: processedNotices,
-      totalNotices,
+      result: processedNotices,
+      total,
       totalPages,
       currentPage: pageNumber,
     });
@@ -214,7 +255,7 @@ const getNoticeById = async (req, res) => {
       return res.status(404).json({ message: "Notice not found." });
     }
 
-    res.status(200).json(notice);
+    res.status(200).json(formatNoticeForResponse(notice));
   } catch (error) {
     console.error("Get notice by ID error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -296,7 +337,7 @@ const updateNotice = async (req, res) => {
 
     res.status(200).json({
       message: "Notice updated successfully",
-      notice: updatedNotice,
+      notice: formatNoticeForResponse(updatedNotice),
     });
   } catch (error) {
     if (error.message === "NoticeNotFound") {
