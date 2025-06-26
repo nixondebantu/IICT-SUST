@@ -39,6 +39,7 @@ export default function useNoticeAction() {
 
   return {
     useNoticeListQuery,
+    useNoticeByIdQuery,
     useNoticeCreateMutation,
   };
 }
