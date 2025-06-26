@@ -82,7 +82,7 @@ export default function NoticeSection() {
   }
 
   return (
-    <section id="notice-section" className="py-16 lg:px-16 bg-accent">
+    <section id="notice-section" className="py-16 lg:px-16 bg-accent w-full">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-center mb-10">
           <div>
@@ -106,8 +106,7 @@ export default function NoticeSection() {
               <NoticeCardSkeleton key={index} />
             ))
           ) : notices.length === 0 ? (
-            <div className="flex flex-col items-start text-center">
-              <div className="md:min-w-7xl">
+            <div className="col-span-full items-center text-center">
               <FontAwesomeIcon
               icon={["fas", "calendar-alt"]}
               className="text-gray-300 md:text-4xl text-2xl mb-4"
@@ -115,7 +114,6 @@ export default function NoticeSection() {
               <p className="text-gray-500 md:text-lg text-base">
               No notices available at the moment.
               </p>
-              </div>
             </div>
           ) : (
             notices.map((notice) => (
@@ -134,7 +132,7 @@ export default function NoticeSection() {
                     <span className="text-sm text-gray-500">
                       {formatDate(notice.date)}
                     </span>
-                    <h3 className="text-lg font-montserrat font-semibold mb-2 line-clamp-2">
+                    <h3 className="text-lg font-montserrat font-semibold mb-2 line-clamp-1">
                       {notice.title}
                     </h3>
                     <div
@@ -142,16 +140,18 @@ export default function NoticeSection() {
                       dangerouslySetInnerHTML={{ __html: notice.description }}
                     />
 
-                    <Link
+                    <div className="mt-auto pt-2">
+                      <Link
                       to={`/notices/${notice.id}`}
                       className="text-primary font-medium inline-flex items-center text-sm hover:underline cursor-pointer"
-                    >
+                      >
                       Read More
                       <FontAwesomeIcon
                         icon={["fas", "arrow-right"]}
                         className="ml-2"
                       />
-                    </Link>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
