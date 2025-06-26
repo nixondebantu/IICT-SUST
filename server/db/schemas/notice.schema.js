@@ -1,11 +1,4 @@
-import {
-  integer,
-  pgTable,
-  serial,
-  text,
-  timestamp,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { users } from "./users.schema.js";
 import { relations, eq } from "drizzle-orm";
 import { noticesToTags } from "./notices_to_tags.schema.js";

@@ -10,18 +10,22 @@ export const APIUrl = {
     updateSlide: (id: string) => `/carousel/${id}`,
     deleteSlide: (id: string) => `/carousel/${id}`,
   },
-   notice: {
+  notice: {
     getNotices: "/notices",
     getNoticeById: (id: string) => `/notices/${id}`,
     createNotice: "/notices",
     updateNotice: (id: string) => `/notices/${id}`,
     deleteNotice: (id: string) => `/notices/${id}`,
   },
-   directorMessage: {
+  directorMessage: {
     getMessages: "/director-messages",
     getMessageById: (id: string) => `/director-messages/${id}`,
     createMessage: "/director-messages",
     updateMessage: (id: string) => `/director-messages/${id}`,
     deleteMessage: (id: string) => `/director-messages/${id}`,
+  },
+  tag: {
+    getTags: "/tags",
+    createTag: "/tags",
   },
 };

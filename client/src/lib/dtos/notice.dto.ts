@@ -1,5 +1,28 @@
 import { z } from "zod";
-import { noticeValidator } from "../validators/notice.validator";
+import { createNoticeValidator } from "../validators/notice.validator";
+import { FileRes } from "./file.dto";
+import { TagRes } from "./tag.dto";
 
-// This type represents a single notice from the API
-export type Notice = z.infer<typeof noticeValidator>;
+export type CreatorRes = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+export type NoticeRes = {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  creator_id: number;
+  creator: CreatorRes;
+  tags: TagRes[];
+  files: FileRes[];
+};
+
+export type NoticeCreateRes = {
+  message: string;
+  notice: NoticeRes;
+};
+
+export type NoticeReq = z.infer<typeof createNoticeValidator>;

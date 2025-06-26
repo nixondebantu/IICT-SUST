@@ -4,6 +4,7 @@ import { useParams } from "react-router";
 
 export default function NoticeDetailsPage() {
   const { id } = useParams();
+  console.log("Notice ID:", id);
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 container mx-auto px-4 py-8">
       <NoticeBody />

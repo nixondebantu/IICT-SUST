@@ -2,6 +2,8 @@
 
 @plugin "tailwindcss-animate";
 
+@plugin '@tailwindcss/typography';
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -121,4 +123,8 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.rich-text .h2 {
+  @apply text-xl font-semibold text-gray-900 mt-8 mb-4;
 }
