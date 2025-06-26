@@ -15,6 +15,13 @@ export class NoticeService {
     return response.data;
   }
 
+  async getById(id: number) {
+    const response = await httpClient.get<NoticeRes>(
+      APIUrl.notice.getNoticeById(id.toString())
+    );
+    return response.data;
+  }
+
   async create(data: NoticeReq) {
     const response = await httpClient.post<NoticeCreateRes>(
       APIUrl.notice.createNotice,

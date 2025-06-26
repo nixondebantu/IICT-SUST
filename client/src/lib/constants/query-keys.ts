@@ -4,6 +4,7 @@ const tags = {
 
 const notice = {
   getAllNotice: "getAllNotice",
+  getNoticeById: "getNoticeById",
 };
 
 export const queryKeys = {

@@ -12,7 +12,17 @@ export default function useNoticeAction() {
     useQuery({
       queryKey: [queryKeys.notice.getAllNotice],
       queryFn: () => noticeService.get(params),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
     });
+
+    const useNoticeByIdQuery = (id: number) =>
+      useQuery({
+        queryKey: [queryKeys.notice.getNoticeById, id],
+        queryFn: () => noticeService.getById(id),
+        enabled: !!id,
+        staleTime: 5 * 60 * 1000,
+      });
 
   const useNoticeCreateMutation = useMutation({
     mutationFn: (data: NoticeReq) => noticeService.create(data),
