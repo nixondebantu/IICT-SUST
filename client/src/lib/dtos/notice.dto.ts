@@ -25,4 +25,8 @@ export type NoticeCreateRes = {
   notice: NoticeRes;
 };
 
+export type NoticeDeleteRes = {
+  message: string;
+};
+
 export type NoticeReq = z.infer<typeof createNoticeValidator>;

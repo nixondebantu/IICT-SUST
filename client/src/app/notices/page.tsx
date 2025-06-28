@@ -14,14 +14,21 @@ export default function NoticePage() {
   const { useNoticeListQuery } = useNoticeAction();
 
   const queryParams = useMemo((): QueryParams => {
-    const currentPage = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const currentPage = Math.max(
+      1,
+      parseInt(searchParams.get("page") || "1", 10)
+    );
     const searchTerm = searchParams.get("search")?.trim() || "";
-    const selectedTags = searchParams.getAll("tag")
-      .map(tag => parseInt(tag, 10))
-      .filter(tag => !isNaN(tag) && tag > 0);
+    const selectedTags = searchParams
+      .getAll("tag")
+      .map((tag) => parseInt(tag, 10))
+      .filter((tag) => !isNaN(tag) && tag > 0);
     const sortBy = searchParams.get("sortBy") || "date";
     const order = (searchParams.get("order") || "desc") as "asc" | "desc";
-    const pageSize = Math.max(1, Math.min(50, parseInt(searchParams.get("pageSize") || "10", 10)));
+    const pageSize = Math.max(
+      1,
+      Math.min(50, parseInt(searchParams.get("pageSize") || "10", 10))
+    );
 
     return {
       page: currentPage,
@@ -29,7 +36,7 @@ export default function NoticePage() {
       search: searchTerm || undefined,
       tag: selectedTags.length > 0 ? selectedTags : undefined,
       sortBy,
-      order
+      order,
     };
   }, [searchParams]);
 
@@ -40,20 +47,21 @@ export default function NoticePage() {
     isError,
     refetch,
     isFetching,
-    isRefetching
+    isRefetching,
   } = useNoticeListQuery(queryParams);
 
   useEffect(() => {
     if (isError && error && !isFetching) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : "Failed to load notices. Please try again.";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load notices. Please try again.";
 
       toast.error("Failed to load notices", {
         description: errorMessage,
         action: {
           label: "Retry",
-          onClick: () => refetch()
+          onClick: () => refetch(),
         },
         duration: 5000,
       });
@@ -75,29 +83,29 @@ export default function NoticePage() {
     refetch();
   }, [refetch]);
 
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page < 1 || page === queryParams.page) return;
 
-  const handlePageChange = useCallback((page: number) => {
-    if (page < 1 || page === queryParams.page) return;
-    
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("page", page.toString());
-    setSearchParams(newParams);
-    
-    // Smooth scroll to top of content
-    requestAnimationFrame(() => {
-      const targetElement = document.getElementById("main-content") || 
-                           document.getElementById("notices-list") ||
-                           document.querySelector("main");
-      if (targetElement) {
-        targetElement.scrollIntoView({ 
-          behavior: "smooth", 
-          block: "start",
-          inline: "nearest"
-        });
-      }
-    });
-  }, [queryParams.page, searchParams, setSearchParams]);
+      // It updates the URL, which triggers the query to refetch automatically
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("page", page.toString());
+        return newParams;
+      });
 
+      // It handles the scroll side-effect
+      requestAnimationFrame(() => {
+        const targetElement =
+          document.getElementById("main-content") ||
+          document.querySelector("main");
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    },
+    [queryParams.page, setSearchParams]
+  );
 
   const handleClearFilters = useCallback(() => {
     const newParams = new URLSearchParams();
@@ -109,28 +117,31 @@ export default function NoticePage() {
     setSearchParams(newParams);
   }, [searchParams, setSearchParams]);
 
-  const noticesData = useMemo(() => ({
-    notices: noticesResponse?.result || [],
-    totalCount: noticesResponse?.total || 0,
-    currentPage: queryParams.page || 1,
-    totalPages: noticesResponse?.totalPages || 0,
-    pageSize: queryParams.limit || 10
-  }), [noticesResponse, queryParams]);
-
+  const noticesData = useMemo(
+    () => ({
+      notices: noticesResponse?.result || [],
+      totalCount: noticesResponse?.total || 0,
+      currentPage: queryParams.page || 1,
+      totalPages: noticesResponse?.totalPages || 0,
+      pageSize: queryParams.limit || 10,
+    }),
+    [noticesResponse, queryParams]
+  );
 
   const hasActiveFilters = useMemo(() => {
     return Boolean(
-      searchParams.get("search") || 
-      searchParams.getAll("tag").length > 0 ||
-      searchParams.get("sortBy") !== "date" ||
-      searchParams.get("order") !== "desc"
+      searchParams.get("search") ||
+        searchParams.getAll("tag").length > 0 ||
+        searchParams.get("sortBy") !== "date" ||
+        searchParams.get("order") !== "desc"
     );
   }, [searchParams]);
 
   if (isError && !noticesResponse && !isFetching && !isRefetching) {
-    const errorMessage = error instanceof Error 
-      ? error.message 
-      : "Failed to load notices. Please try again.";
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Failed to load notices. Please try again.";
 
     return (
       <div className="min-h-screen bg-gray-50">
@@ -148,7 +159,7 @@ export default function NoticePage() {
             </p>
             <div className="flex gap-3">
               <Button onClick={handleRetry} disabled={isLoading || isFetching}>
-                {(isLoading || isFetching) ? (
+                {isLoading || isFetching ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
                   <RefreshCw className="w-4 h-4 mr-2" />
@@ -178,7 +189,13 @@ export default function NoticePage() {
             <NoticesList
               notices={noticesData.notices}
               isLoading={isLoading}
-              error={isError ? (error instanceof Error ? error.message : "An error occurred") : null}
+              error={
+                isError
+                  ? error instanceof Error
+                    ? error.message
+                    : "An error occurred"
+                  : null
+              }
               totalCount={noticesData.totalCount}
               currentPage={noticesData.currentPage}
               totalPages={noticesData.totalPages}

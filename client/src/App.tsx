@@ -19,6 +19,7 @@ import DirectorMessagePage from "./app/(protected)/dashboard/director_message/pa
 import NoticePage from "./app/notices/page";
 import NoticeDetailsPage from "./app/notices/[id]/page";
 import CreateNoticePage from "./app/(protected)/dashboard/notices/new/page";
+import EditNoticePage from "./app/(protected)/dashboard/notices/[id]/page";
 
 const RootLayout = () => {
   return (
@@ -55,6 +56,7 @@ const router = createBrowserRouter([
           { path: "blog", element: <Blog /> },
           { path: "notices", element: <Notices /> },
           { path: "notices/new", element: <CreateNoticePage /> },
+          { path: "notices/:id", element: <EditNoticePage /> },
           { path: "director_message", element: <DirectorMessagePage /> }, // Placeholder for Director's Message
         ],
       },

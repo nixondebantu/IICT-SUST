@@ -1,5 +1,3 @@
-// components/pages/notices/notice-list-table.tsx
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import useNoticeAction from "@/hooks/useNoticeAction.hook";
@@ -26,17 +24,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Edit, Trash2, Eye, Search } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-// Icons
-import { MoreHorizontal, Edit, Trash2, Eye, Search } from "lucide-react";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 function NoticeListTable() {
   const [page, setPage] = useState(1);
@@ -44,14 +43,7 @@ function NoticeListTable() {
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // This effect correctly resets pagination when a new search is initiated.
-  useEffect(() => {
-    if (page !== 1) {
-      setPage(1);
-    }
-  }, [debouncedSearchTerm]);
-
-  const { useNoticeListQuery } = useNoticeAction();
+  const { useNoticeListQuery, useNoticeDeleteMutation } = useNoticeAction();
   const {
     data: noticesData,
     isLoading,
@@ -64,43 +56,48 @@ function NoticeListTable() {
     search: debouncedSearchTerm,
   });
 
+  useEffect(() => {
+    if (debouncedSearchTerm !== undefined) {
+      setPage(1);
+    }
+  }, [debouncedSearchTerm]);
+
   const notices = noticesData?.result ?? [];
   const totalPages = noticesData?.totalPages ?? 1;
 
-  // ... (handlePreviousPage, handleNextPage, handleDelete functions as before)
-  const handlePreviousPage = () => setPage((prev) => Math.max(prev - 1, 1));
-  const handleNextPage = () =>
+  const handlePreviousPage = () => {
+    setPage((prev) => Math.max(prev - 1, 1));
+  };
+  const handleNextPage = () => {
     setPage((prev) => Math.min(prev + 1, totalPages));
-  const handleDelete = (noticeId: number) => {
-    if (window.confirm(`Are you sure you want to delete notice ${noticeId}?`)) {
-      console.log(`Deleting notice ${noticeId}`);
-    }
   };
 
-  // Disable pagination/search while a fetch is in progress for better UX
+  const handleDelete = (noticeId: number) => {
+    useNoticeDeleteMutation.mutate(noticeId);
+  };
+
   const isBusy = isLoading || isFetching;
 
   return (
-    // ✅ FIX: Using the Card component provides better structure and avoids overflow issues.
     <Card>
       <CardHeader>
         <CardTitle>All Notices</CardTitle>
         <CardDescription>
           Browse, search, and manage all company notices.
         </CardDescription>
-        <div className="relative mt-4">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by title..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-sm pl-8"
-            disabled={isBusy}
-          />
+        <div className="w-full max-w-sm mt-4">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by title..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
+            />
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {/* The border is now on a div inside CardContent, which is safe. */}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -148,41 +145,60 @@ function NoticeListTable() {
                       {new Date(notice.date).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      {/* ✅ FIX: This dropdown will now render correctly above all other content. */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                      <div className="flex justify-end gap-2">
+                        <Link
+                          to={`/notices/${notice.id}`}
+                          className="cursor-pointer"
+                          title="View"
+                        >
+                          <Button variant="ghost" size="icon">
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">View</span>
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                            <Link
-                              to={`/dashboard/notices/${notice.id}`}
-                              className="cursor-pointer"
+                        </Link>
+                        <Link
+                          to={`/dashboard/notices/${notice.id}`}
+                          className="cursor-pointer"
+                          title="Edit"
+                        >
+                          <Button variant="ghost" size="icon">
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                        </Link>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-600 hover:text-red-700"
+                              title="Delete"
                             >
-                              <Eye className="mr-2 h-4 w-4" /> View
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link
-                              to={`/dashboard/notices/edit/${notice.id}`}
-                              className="cursor-pointer"
-                            >
-                              <Edit className="mr-2 h-4 w-4" /> Edit
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-red-600 focus:text-red-500 cursor-pointer"
-                            onClick={() => handleDelete(notice.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete</span>
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete the notice.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(notice.id)}
+                              >
+                                Continue
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

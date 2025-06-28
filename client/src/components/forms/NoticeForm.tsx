@@ -15,7 +15,7 @@ import { createNoticeValidator } from "@/lib/validators/notice.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { RichTextEditor } from "../tiptap-extensions/rich-text-editor";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import TagCreationForm from "./TagCreationForm";
+import { format } from "date-fns";
 
 type Props = {
   initialValues?: NoticeRes;
@@ -53,10 +54,33 @@ export default function NoticeForm({
     },
   });
 
+  useEffect(() => {
+    if (initialValues) {
+      form.reset({
+        title: initialValues.title,
+        description: initialValues.description,
+        date: new Date(initialValues.date),
+        tagIds: initialValues.tags?.map((tag) => tag.id) || [],
+        files: initialValues.files || [],
+      });
+    }
+  }, [initialValues, form]);
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "files",
   });
+
+  // Helper function to format date for the input
+  const formatDateForInput = (date: Date | null | undefined) => {
+    if (!date) return "";
+    try {
+      // Ensure we have a valid Date object before formatting
+      return format(new Date(date), "yyyy-MM-dd");
+    } catch {
+      return "";
+    }
+  };
 
   return (
     <Form {...form}>
@@ -74,6 +98,33 @@ export default function NoticeForm({
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="date"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notice Date</FormLabel>
+              <FormControl>
+                <Input
+                  type="date"
+                  className="w-fit"
+                  {...field}
+                  value={formatDateForInput(field.value)}
+                  onChange={(e) => {
+                    // Convert the input string back to a Date object, accounting for timezones.
+                    const date = e.target.value
+                      ? new Date(e.target.value + "T00:00:00")
+                      : null;
+                    field.onChange(date);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="tagIds"

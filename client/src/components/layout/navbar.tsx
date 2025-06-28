@@ -40,7 +40,7 @@ function Navbar() {
     <>
       {/* Placeholder to preserve layout */}
       <div className="h-14 w-full z-0" />
-      <nav className="flex px-4 justify-between h-14 w-full border-b-2 items-center fixed top-0 bg-background z-[100] shadow-sm">
+      <nav className="flex px-4 justify-between h-14 w-full border-b-2 items-center fixed top-0 bg-background z-50 shadow-sm">
         <div className="flex gap-2">
           <Menu className="my-auto cursor-pointer hover:bg-primary/10 md:hidden block" />
           <Link to="/" className="text-2xl font-bold">
