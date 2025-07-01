@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router";
 
 const events: {
   id: string;
@@ -45,10 +46,13 @@ export default function EventsSection() {
     <div id="events-section" className="md:w-1/2">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-montserrat font-bold">Upcoming Events</h2>
-        <span className="text-primary font-medium inline-flex items-center hover:underline cursor-pointer">
+        <Link
+          to={"/events"}
+          className="text-primary font-medium inline-flex items-center hover:underline cursor-pointer"
+        >
           View All
           <FontAwesomeIcon icon={["fas", "arrow-right"]} className="ml-2" />
-        </span>
+        </Link>
       </div>
 
       {events.map((event, index) => (

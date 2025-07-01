@@ -39,10 +39,13 @@ export default function NewsSection() {
     <div id="news-section" className="md:w-1/2">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-montserrat font-bold">Latest News</h2>
-        <span className="text-primary font-medium inline-flex items-center hover:underline cursor-pointer">
+        <Link
+          to={"/news"}
+          className="text-primary font-medium inline-flex items-center hover:underline cursor-pointer"
+        >
           View All
           <FontAwesomeIcon icon={["fas", "arrow-right"]} className="ml-2" />
-        </span>
+        </Link>
       </div>
 
       {newsItems.map((item, index) => (
