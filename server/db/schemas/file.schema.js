@@ -8,6 +8,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { notices } from "./notice.schema.js";
+import { events } from "./event.schema.js";
 
 export const files = pgTable("files", {
   id: serial("id").primaryKey(),
@@ -22,5 +23,9 @@ export const filesRelations = relations(files, ({ one }) => ({
   notice: one(notices, {
     fields: [files.entity_id],
     references: [notices.id],
+  }),
+  events: one(events, {
+    fields: [files.entity_id],
+    references: [events.id],
   }),
 }));
