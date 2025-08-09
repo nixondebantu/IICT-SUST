@@ -13,6 +13,7 @@ import AboutPage from "./app/about/page";
 import ContactPage from "./app/contact/page";
 import EventDetailsPage from "./app/events/[id]/page";
 import EventsPage from "./app/events/page";
+import NewsDetailsPage from "./app/news/[id]/page";
 import NewsPage from "./app/news/page";
 import NotFound from "./app/not-found";
 import NoticeDetailsPage from "./app/notices/[id]/page";
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
       { path: "notices", element: <NoticePage /> },
       { path: "notices/:id", element: <NoticeDetailsPage /> },
       { path: "news", element: <NewsPage /> },
+      { path: "news/:id", element: <NewsDetailsPage /> },
       { path: "events", element: <EventsPage /> },
       { path: "events/:id", element: <EventDetailsPage /> },
       { path: "login", element: <Login /> },
