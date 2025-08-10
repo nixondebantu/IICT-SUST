@@ -4,6 +4,7 @@ import config from "./config/index.js";
 import authRoute from "./routes/auth.route.js";
 import carouselRoute from "./routes/carousel.route.js";
 import noticeRoute from "./routes/notice.route.js";
+import newsRoute from "./routes/news.route.js";
 import eventRoute from "./routes/event.route.js";
 import tagRoute from "./routes/tag.route.js";
 import directorMessageRoute from "./routes/director_message.route.js";
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoute);
 app.use("/carousel", carouselRoute);
 app.use("/notices", noticeRoute);
+app.use("/news", newsRoute);
 app.use("/events", eventRoute);
 app.use("/tags", tagRoute);
 app.use("/director-messages", directorMessageRoute);

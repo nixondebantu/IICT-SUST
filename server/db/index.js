@@ -14,6 +14,7 @@ import * as carouselSchema from "./schemas/carousels.schema.js";
 import * as fileSchema from "./schemas/file.schema.js";
 import * as directorMessageSchema from "./schemas/director_message.schema.js";
 import * as eventSchema from "./schemas/event.schema.js";
+import * as newsSchema from "./schemas/news.schema.js";
 
 const schema = {
   ...noticeSchema,
@@ -28,6 +29,7 @@ const schema = {
   ...carouselSchema,
   ...directorMessageSchema,
   ...eventSchema,
+  ...newsSchema,
 };
 
 const pool = new pg.Pool({
