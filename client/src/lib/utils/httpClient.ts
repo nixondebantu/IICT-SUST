@@ -1,7 +1,6 @@
 import axios from "axios";
-import { APIUrl } from "../constants/url.config";
 import JWTService from "../services/cookies.service";
-
+import { APIUrl } from "../constants/url.config";
 const httpClient = axios.create({
   baseURL: APIUrl.base,
   headers: {

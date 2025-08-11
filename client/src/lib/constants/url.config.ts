@@ -28,4 +28,11 @@ export const APIUrl = {
     getTags: "/tags",
     createTag: "/tags",
   },
+  event: {
+    getEvents: "/events",
+    getEventById: (id: string) => `/events/${id}`,
+    createEvent: "/events",
+    updateEvent: (id: string) => `/events/${id}`,
+    deleteEvent: (id: string) => `/events/${id}`,
+  },
 };

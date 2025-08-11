@@ -63,6 +63,7 @@ const router = createBrowserRouter([
           { path: "notices", element: <Notices /> },
           { path: "notices/new", element: <CreateNoticePage /> },
           { path: "notices/:id", element: <EditNoticePage /> },
+          {path: "events", element:<EventsPage/>},
           { path: "director_message", element: <DirectorMessagePage /> }, // Placeholder for Director's Message
         ],
       },
