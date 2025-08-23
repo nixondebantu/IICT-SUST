@@ -8,7 +8,7 @@ export type TagRes = {
 
 export const TagCreateValidator = z.object({
   value: z.string().min(1, "Tag value is required"),
-  type: z.enum(["notice", "news"]),
+  type: z.enum(["notice", "news", "event"]),
 });
 
 export type TagReq = z.infer<typeof TagCreateValidator>;

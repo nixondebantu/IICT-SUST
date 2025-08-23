@@ -1,6 +1,8 @@
+import useTagsAction from "@/hooks/useTagsAction.hook";
 import { TagCreateValidator, TagReq } from "@/lib/dtos/tag.dto";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, useForm } from "react-hook-form";
+import { Button } from "../ui/button";
 import {
   FormControl,
   FormField,
@@ -9,11 +11,9 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import useTagsAction from "@/hooks/useTagsAction.hook";
 
 interface TagCreationFormProps {
-  type: "notice" | "news";
+  type: "notice" | "news" |"event";
   onSuccess: () => void;
 }
 export default function TagCreationForm({

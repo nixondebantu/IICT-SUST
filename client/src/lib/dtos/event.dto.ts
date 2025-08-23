@@ -1,10 +1,10 @@
 // src/lib/dtos/event.dto.ts
 
 import { z } from "zod";
-import { FileRes } from "./file.dto";
-import { TagRes } from "./tag.dto";
-import { CreatorRes } from "./notice.dto"; // Reusing from notice.dto
 import { createEventValidator } from "../validators/event.validator";
+import { FileRes } from "./file.dto";
+import { CreatorRes } from "./notice.dto"; // Reusing from notice.dto
+import { TagRes } from "./tag.dto";
 
 // Type for the API response for a single event
 export type EventRes = {
@@ -15,8 +15,8 @@ export type EventRes = {
   end_time: string;
   location: string;
   capacity: number | null;
-  cta_title: string | null;
-  cta_url: string | null;
+  cta_title: string;
+  cta_url: string;
   contact_number: string | null;
   contact_mail: string | null;
   contact_person_name: string | null;
