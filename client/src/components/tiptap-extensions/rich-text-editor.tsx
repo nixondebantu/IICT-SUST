@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import Youtube from "@tiptap/extension-youtube";
+import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import Table from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import Underline from "@tiptap/extension-underline";
+import Youtube from "@tiptap/extension-youtube";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import { useEffect, useState } from "react";
 
-import { RichTextToolbar } from "./rich-text-toolbar";
 import { MediaEmbedDialog } from "./media-embed-dialog";
+import { RichTextToolbar } from "./rich-text-toolbar";
 
 interface RichTextEditorProps {
   value: string;
@@ -27,7 +31,6 @@ export function RichTextEditor({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // Disable dropping to prevent default browser behavior
         dropcursor: {
           color: "#555",
           width: 2,
@@ -48,7 +51,7 @@ export function RichTextEditor({
         },
       }),
       Youtube.configure({
-        width: undefined, // Let the class control it
+        width: undefined,
         height: undefined,
         HTMLAttributes: {
           class: "w-full aspect-video rounded-lg my-4",
@@ -57,15 +60,16 @@ export function RichTextEditor({
       Placeholder.configure({
         placeholder: placeholder || "Start writing...",
       }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      // On every update, call the onChange from React Hook Form
       onChange(editor.getHTML());
     },
     editorProps: {
       attributes: {
-        // Add prose styles for beautiful typography
         class: "prose prose-sm sm:prose-base max-w-none focus:outline-none p-4",
       },
     },

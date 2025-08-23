@@ -128,3 +128,84 @@
 .rich-text .h2 {
   @apply text-xl font-semibold text-gray-900 mt-8 mb-4;
 }
+
+@layer components {
+  /* Rich-text table container for responsive handling */
+  .prose table {
+    @apply w-full border-collapse border-spacing-0 rounded-lg overflow-hidden shadow-sm;
+    border: 1px solid var(--color-border);
+  }
+
+  /* Table header styling */
+  .prose th {
+    @apply font-semibold px-2 text-left text-sm;
+    background-color: color-mix(
+      in oklch,
+      var(--color-primary) 10%,
+      transparent
+    );
+    color: var(--color-secondary-foreground);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+  }
+
+  .prose th:last-child {
+    @apply border-r-0;
+  }
+
+  .prose td:first-child {
+    padding-left: 1rem;
+  }
+
+  .prose td:last-child {
+    @apply border-r-0;
+    padding-right: 1rem;
+  }
+  /* Table cell styling */
+  .prose td {
+    @apply px-4 py-3 text-sm;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    color: var(--color-foreground);
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    background-color: var(--color-background);
+  }
+
+  .prose td:last-child {
+    @apply border-r-0;
+  }
+
+  /* Remove border from last row */
+  .prose tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* Hover effect for better UX */
+  .prose tr:hover td {
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+  }
+
+  /* Responsive table wrapper */
+  .prose .table-wrapper {
+    @apply overflow-x-auto -mx-4 sm:mx-0;
+  }
+
+  .prose .table-wrapper table {
+    @apply min-w-full;
+  }
+
+  /* Optional: Add subtle transitions for smoother interactions */
+  .prose td,
+  .prose th {
+    @apply transition-colors duration-200;
+  }
+
+  /* Enhanced focus states for accessibility */
+  .prose table:focus-within {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
