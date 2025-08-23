@@ -24,6 +24,13 @@ export const APIUrl = {
     updateMessage: (id: string) => `/director-messages/${id}`,
     deleteMessage: (id: string) => `/director-messages/${id}`,
   },
+  news: {
+    getNews: "/news",
+    getNewsById: (id: string) => `/news/${id}`,
+    createNews: "/news",
+    updateNews: (id: string) => `/news/${id}`,
+    deleteNews: (id: string) => `/news/${id}`,
+  },
   tag: {
     getTags: "/tags",
     createTag: "/tags",

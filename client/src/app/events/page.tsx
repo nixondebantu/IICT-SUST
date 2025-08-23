@@ -1,6 +1,5 @@
 import EventTitleSection from "@/components/pages/events/event-title-section";
 import EventsList from "@/components/pages/events/events-list";
-import EventsPagination from "@/components/pages/events/events-pagination";
 import EventsSearchFilter from "@/components/pages/events/events-search-filter";
 
 export default function EventsPage() {
@@ -9,7 +8,7 @@ export default function EventsPage() {
       <EventTitleSection />
       <EventsSearchFilter />
       <EventsList />
-      <EventsPagination />
+      {/* <EventsPagination /> */}
     </div>
   );
 }

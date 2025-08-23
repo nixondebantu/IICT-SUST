@@ -4,7 +4,9 @@ import ResetPass from "./app/(auth)/reset-password/page";
 import Blog from "./app/(protected)/dashboard/blog/page";
 import Carousel from "./app/(protected)/dashboard/carousel/page";
 import DirectorMessagePage from "./app/(protected)/dashboard/director_message/page";
-import News from "./app/(protected)/dashboard/news/page";
+import EditNewsPage from "./app/(protected)/dashboard/news/[id]/page";
+import CreateNewsPage from "./app/(protected)/dashboard/news/new/page";
+import { default as News, default as NewsDashboardPage } from "./app/(protected)/dashboard/news/page";
 import EditNoticePage from "./app/(protected)/dashboard/notices/[id]/page";
 import CreateNoticePage from "./app/(protected)/dashboard/notices/new/page";
 import Notices from "./app/(protected)/dashboard/notices/page";
@@ -65,6 +67,10 @@ const router = createBrowserRouter([
           { path: "notices", element: <Notices /> },
           { path: "notices/new", element: <CreateNoticePage /> },
           { path: "notices/:id", element: <EditNoticePage /> },
+          { path: "news", element: <NewsDashboardPage /> },
+          { path: "news/new", element: <CreateNewsPage /> },
+          { path: "news/:id", element: <EditNewsPage /> },
+
           { path: "director_message", element: <DirectorMessagePage /> }, // Placeholder for Director's Message
         ],
       },
