@@ -52,6 +52,15 @@ const createProgram = async (req, res) => {
   }
 
   try {
+    // check program existence
+    const existingProgram = await db.query.program.findFirst({
+      where: eq(program.slug, slug.toLowerCase()),
+    });
+
+    if (existingProgram) {
+      return res.status(400).json({ message: "Program with this slug already exists." });
+    }
+
     const [createdProgram] = await db
       .insert(program)
       .values({
@@ -174,7 +183,17 @@ const updateProgram = async (req, res) => {
     const updatedData = {};
     if (title) updatedData.title = title;
     if (image) updatedData.image = image;
-    if (slug) updatedData.slug = slug;
+    if (slug) {
+      const existingProgram = await db.query.program.findFirst({
+        where: eq(program.slug, slug.toLowerCase()),
+      });
+
+      if (existingProgram.id !== programId) {
+        return res.status(400).json({ message: "Program with this slug already exists." });
+      }
+
+      updatedData.slug = slug.toLowerCase();
+    }
     if (short_description) updatedData.short_description = short_description;
     if (duration) updatedData.duration = duration;
     if (credit) updatedData.credit = credit;

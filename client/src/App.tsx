@@ -19,6 +19,7 @@ import NotFound from "./app/not-found";
 import NoticeDetailsPage from "./app/notices/[id]/page";
 import NoticePage from "./app/notices/page";
 import Home from "./app/page";
+import ProgramDetailsPage from "./app/programs/[slug]/page";
 import ProgramsPage from "./app/programs/page";
 import Footer from "./components/layout/footer";
 import Navbar from "./components/layout/navbar";
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
       { path: "", element: <Home /> },
       { path: "about", element: <AboutPage /> },
       { path: "programs", element: <ProgramsPage /> },
+      { path: "programs/:slug", element: <ProgramDetailsPage /> },
       { path: "contact", element: <ContactPage /> },
       { path: "notices", element: <NoticePage /> },
       { path: "notices/:id", element: <NoticeDetailsPage /> },
