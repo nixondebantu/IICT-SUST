@@ -1,6 +1,7 @@
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
@@ -58,6 +59,9 @@ export function RichTextEditor({
       }),
       Placeholder.configure({
         placeholder: placeholder || "Start writing...",
+      }),
+      Table.configure({
+        resizable: false,
       }),
       TableRow,
       TableHeader,
