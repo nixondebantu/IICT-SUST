@@ -1,9 +1,5 @@
 // src/app/news/page.tsx
 
-"use client";
-
-import EventsPagination from "@/components/pages/events/events-pagination"; // Reusable
-import NewsList from "@/components/pages/news/news-list";
 import useNewsAction from "@/hooks/useNewsAction.hook";
 import { QueryParams } from "@/lib/dtos/query.dto";
 import { AlertCircle, Loader2 } from "lucide-react";
@@ -11,19 +7,25 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
+// Import the new components
+import EventsPagination from "@/components/pages/events/events-pagination"; // Reusing the pagination component
+import NewsCard from "@/components/pages/news/news-card";
+import NewsPageHeader from "@/components/pages/news/news-page-header";
+
 export default function NewsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { useNewsListQuery } = useNewsAction();
 
+  // The data fetching logic remains exactly the same
   const queryParams: QueryParams = useMemo(() => ({
     page: Number(searchParams.get("page") || "1"),
-    limit: 9,
+    limit: 10, // Let's show 10 per page in this list view
     search: searchParams.get("search") || undefined,
     sortBy: "date",
     order: "desc",
   }), [searchParams]);
 
-  const { data: newsResponse, isLoading, isError, error, isFetching } = useNewsListQuery(queryParams);
+  const { data: newsResponse, isLoading, isError, error } = useNewsListQuery(queryParams);
 
   useEffect(() => {
     if (isError) {
@@ -31,12 +33,10 @@ export default function NewsPage() {
     }
   }, [isError, error]);
 
-  const handleQueryChange = useCallback((name: string, value: string) => {
+  const handlePageChange = useCallback((page: number) => {
     setSearchParams(prev => {
       const newParams = new URLSearchParams(prev);
-      if (value) newParams.set(name, value);
-      else newParams.delete(name);
-      if (name !== 'page') newParams.set('page', '1');
+      newParams.set('page', page.toString());
       return newParams;
     });
   }, [setSearchParams]);
@@ -46,27 +46,52 @@ export default function NewsPage() {
   const isInitialLoading = isLoading && !newsResponse;
 
   return (
-    <div>
-      <section className="bg-primary text-primary-foreground py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Latest News & Updates</h1>
-          <p className="text-xl opacity-90">Stay informed with the latest happenings at IICT.</p>
-        </div>
-      </section>
-      
-      {/* You can create a NewsSearchFilter component similar to the events one if needed */}
+    <main className="pb-12 bg-gray-50 min-h-screen">
+      <NewsPageHeader />
 
-      {isInitialLoading ? (
-        <div className="flex justify-center items-center py-20"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>
-      ) : isError && newsData.length === 0 ? (
-        <div className="container mx-auto text-center py-20"><AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" /><h2 className="text-xl font-semibold">Failed to Load News</h2></div>
-      ) : (
-        <NewsList news={newsData} isLoading={isFetching} />
-      )}
+      <div className="container mx-auto px-4 py-8">
+        {/* Render loading state */}
+        {isInitialLoading && (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+          </div>
+        )}
 
+        {/* Render error state */}
+        {isError && newsData.length === 0 && (
+          <div className="text-center py-20">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold">Failed to Load News</h2>
+          </div>
+        )}
+        
+        {/* Render the news grid if data is available */}
+        {!isInitialLoading && !isError && (
+          newsData.length > 0 ? (
+            <div id="news-grid" className="space-y-6">
+              {newsData.map((article) => (
+                <NewsCard key={article.id} article={article} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <h2 className="text-2xl font-semibold">No News Found</h2>
+              <p className="text-muted-foreground mt-2">There are currently no news articles to display.</p>
+            </div>
+          )
+        )}
+      </div>
+
+      {/* Render pagination if there is more than one page */}
       {totalPages > 1 && !isError && (
-        <EventsPagination currentPage={queryParams.page || 1} totalPages={totalPages} onPageChange={(page) => handleQueryChange("page", page.toString())} />
+        <div className="mt-8">
+          <EventsPagination 
+            currentPage={queryParams.page || 1} 
+            totalPages={totalPages} 
+            onPageChange={handlePageChange} 
+          />
+        </div>
       )}
-    </div>
+    </main>
   );
 }

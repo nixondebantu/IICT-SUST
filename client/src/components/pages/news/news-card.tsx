@@ -1,40 +1,48 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router";
+// src/components/pages/news/news-card.tsx
 
-export default function NewsCard() {
+import { NewsRes } from "@/lib/dtos/news.dto";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
+
+interface NewsCardProps {
+  article: NewsRes;
+}
+
+export default function NewsCard({ article }: NewsCardProps) {
   return (
-    <article className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <article className="rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow bg-white">
       <div className="md:flex">
-        <div className="md:w-80 h-48 md:h-auto">
+        <div className="md:w-80 md:flex-shrink-0">
           <img
-            className="w-full h-full object-cover"
-            src="https://storage.googleapis.com/uxpilot-auth.appspot.com/11d578de27-ec7aef6f8888a208f9e4.png"
-            alt="modern university research lab with students working on computers and technology projects"
+            className="w-full h-48 md:h-full object-cover"
+            src={article.image_url}
+            alt={article.title}
           />
         </div>
-        <div className="p-6 flex-1">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-              Research
+        <div className="p-6 flex flex-col flex-1">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="bg-primary text-primary-foreground text-xs font-medium px-2 py-1 rounded">
+              {article.tag.value}
             </span>
-            <span className="text-sm">December 10, 2024</span>
+            <span className="text-sm text-muted-foreground">
+              {new Date(article.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
           </div>
-          <h3 className="text-xl font-semibold text-primary/90 mb-3 hover:text-primary cursor-pointer">
-            IICT Students Win National AI Competition with Innovative Healthcare
-            Solution
-          </h3>
-          <p className="mb-4">
-            A team of IICT students has secured first place in the National
-            Artificial Intelligence Competition with their groundbreaking
-            healthcare management system that uses machine learning to predict
-            patient outcomes...
-          </p>
+          <Link to={`/news/${article.id}`}>
+            <h3 className="text-xl font-semibold text-primary/90 mb-3 hover:text-primary cursor-pointer">
+              {article.title}
+            </h3>
+          </Link>
+          <p 
+            className="text-muted-foreground mb-4 line-clamp-3 flex-grow"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
           <Link
-            to={`/news/${1}`}
-            className="text-primary font-medium hover:underline cursor-pointer"
+            to={`/news/${article.id}`}
+            className="text-primary font-medium hover:underline cursor-pointer flex items-center mt-auto"
           >
-            Read More{" "}
-            <FontAwesomeIcon icon={["fas", "arrow-right"]} className="ml-1" />
+            Read More
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </div>
       </div>
