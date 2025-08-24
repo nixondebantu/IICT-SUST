@@ -3,6 +3,7 @@ import {
   createProgram,
   deleteProgram,
   getAllPrograms,
+  getProgramById,
   getProgramBySlug,
   updateProgram,
 } from "../controllers/program.controller.js";
@@ -12,6 +13,8 @@ import { rbacMiddleware } from "../middleware/rbac.middleware.js";
 const router = express.Router();
 
 router.get("/", getAllPrograms);
+
+router.get("/id/:id", getProgramById);
 
 router.get("/:slug", getProgramBySlug);
 
